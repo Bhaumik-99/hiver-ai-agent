@@ -1,0 +1,124 @@
+{
+  "benchmark_name": "headline",
+  "benchmark_description": "40-example stratified subset of the 200-example golden set",
+  "benchmark_size": 40,
+  "golden_set_total": 200,
+  "seed": 42,
+  "agent_model": "ollama/llama3.2:latest",
+  "judge_model": "ollama/llama3.2:latest",
+  "judge_differs_from_agent": false,
+  "provider": "ollama",
+  "temperature": {
+    "intent": 0.1,
+    "reply": 0.4,
+    "escalation": 0.1,
+    "judge": 0.1
+  },
+  "taxonomy_sha256_16": "6bb7079b4e073743",
+  "taxonomy_intents": [
+    "software_update_os",
+    "battery_and_charging",
+    "hardware_and_audio",
+    "apple_id_and_icloud",
+    "billing_and_subscriptions",
+    "device_performance_freeze",
+    "connectivity_and_network",
+    "general_inquiry_features",
+    "store_orders_and_repairs",
+    "complaint_and_frustration"
+  ],
+  "golden_set_sha256_16": "6d94c7983f10ba56",
+  "golden_set_path": "data/golden_set_prelabelled.csv",
+  "golden_set_provenance": {
+    "path": "data/golden_set_prelabelled.csv",
+    "source_stage": "prelabelled",
+    "sha256_16": "6d94c7983f10ba56",
+    "schema_problems": [],
+    "total": 200,
+    "human_reviewed": 0,
+    "pre_labelled_heuristic": 200,
+    "pending_review": 0,
+    "fully_human_reviewed": false,
+    "relabelling_check": {
+      "checked": true,
+      "n_claiming_human_review": 0,
+      "n_identical_to_prelabels": 0,
+      "n_retaining_generator_marker": 0,
+      "suspicious": false
+    },
+    "labels_are_provisional": true,
+    "warning": "PROVISIONAL RESULTS: scored against heuristic pre-labels, not human ground truth. These numbers measure agreement with scripts/label_golden_set.py, not with a human annotator."
+  },
+  "labels_are_provisional": true,
+  "retrieval_corpus_size": 4784,
+  "golden_threads_held_out": 216,
+  "escalation_base_rate": 0.3,
+  "style_exemplar_count": 3,
+  "leakage_checks": [
+    {
+      "check": "corpus_excludes_golden",
+      "passed": true,
+      "corpus_size": 4784,
+      "golden_size": 40
+    },
+    {
+      "check": "same_examples",
+      "passed": true,
+      "n_systems": 3,
+      "n_examples": 40
+    },
+    {
+      "check": "trivial_out_of_fold",
+      "passed": true,
+      "n_predictions": 197
+    },
+    {
+      "check": "simple_out_of_fold",
+      "passed": true,
+      "n_predictions": 197
+    },
+    {
+      "check": "retrieval_excludes_self",
+      "passed": true,
+      "n_checked": 40,
+      "system": "trivial"
+    },
+    {
+      "check": "no_gold_labels_in_inference",
+      "passed": true,
+      "n_checked": 40,
+      "system": "trivial"
+    },
+    {
+      "check": "retrieval_excludes_self",
+      "passed": true,
+      "n_checked": 40,
+      "system": "simple"
+    },
+    {
+      "check": "no_gold_labels_in_inference",
+      "passed": true,
+      "n_checked": 40,
+      "system": "simple"
+    },
+    {
+      "check": "retrieval_excludes_self",
+      "passed": true,
+      "n_checked": 40,
+      "system": "main"
+    },
+    {
+      "check": "no_gold_labels_in_inference",
+      "passed": true,
+      "n_checked": 40,
+      "system": "main"
+    }
+  ],
+  "total_wall_time_seconds": 1.2,
+  "per_system_wall_time_seconds": {
+    "trivial": 0.0,
+    "simple": 0.0,
+    "main": 0.02
+  },
+  "judge_enabled": false
+}

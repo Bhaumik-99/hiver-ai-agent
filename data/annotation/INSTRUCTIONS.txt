@@ -1,0 +1,43 @@
+HUMAN ANNOTATION TASK - AppleSupport golden evaluation set
+===========================================================
+
+You are producing the ground truth this project is evaluated against. Every row
+currently holds a HEURISTIC PRE-LABEL produced by a regex script. Your job is to
+read the customer message and confirm or correct it.
+
+For each row:
+
+1. gold_intent - choose exactly one intent from data/intent_taxonomy.json.
+   Judge by the customer's PRIMARY need. If a message vents anger AND names a
+   technical cause ("iOS 11 destroyed my battery"), label the technical intent
+   (battery_and_charging) - the frustration is captured by the escalation flag.
+   Use general_inquiry_features only when no other class genuinely fits; it is
+   the catch-all and the pre-labeller over-uses it.
+
+2. gold_should_escalate - true when a human agent must take this over.
+   Escalate for: explicit request for a person; legal threats; account
+   compromise or credential exposure; billing disputes and refunds; physical
+   safety (fire, swelling battery, burns); PII posted publicly; abuse; or a
+   message so ambiguous that any automated reply would be a guess.
+   Do NOT escalate merely because the customer is annoyed.
+
+3. gold_escalation_reason - short snake_case reason when escalating, else blank.
+   e.g. legal_threat, account_security, billing_dispute, safety_hazard,
+   explicit_human_request, ambiguity_clarification, abuse.
+
+4. gold_reply_quality - 1-5, judging the BRAND'S OWN historical reply in
+   brand_reply (not any model output):
+     1 no useful content   2 acknowledges only   3 generic deflection to DM
+     4 specific actionable step   5 specific step plus correct resource/link
+
+5. labelling_notes - anything ambiguous, and WHY you decided as you did.
+
+6. annotation_status - set to exactly: human_reviewed
+   Rows left as pending_review or pre_labelled_heuristic are excluded from the
+   final evaluation set.
+
+Do not consult the other annotator's file while working. The overlap rows exist
+to measure genuine independent agreement.
+
+Overlap rows (annotated by both, used for Cohen's kappa): 50
+Overlap example_ids: [2, 7, 8, 9, 12, 23, 24, 25, 27, 29, 36, 40, 41, 51, 56, 57, 58, 60, 63, 68, 71, 72, 87, 88, 89, 92, 98, 108, 109, 115, 118, 130, 138, 140, 144, 151, 152, 155, 164, 167, 169, 174, 182, 183, 186, 189, 190, 191, 192, 198]

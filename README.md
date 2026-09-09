@@ -1,210 +1,351 @@
-# Hiver AI Support Agent — AppleSupport
+# AppleSupport AI Agent — classify, draft, escalate
 
-An enterprise-grade, grounded AI customer support agent for **AppleSupport** on Twitter, complete with a 10-category intent taxonomy, historical retrieval-augmented generation (RAG), hybrid cascade escalation logic, and a rigorous multi-tier evaluation harness comparing against trivial and machine learning baselines.
+An AI support agent for `@AppleSupport` built from the
+[Customer Support on Twitter](https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter)
+dataset, together with the evaluation harness that tries to work out whether it
+can be trusted.
 
----
-
-## Executive Summary & Key Results
-
-| Metric | Trivial Baseline (Majority + Macro) | Simple Baseline (TF-IDF + Nearest Neighbor) | Main Agent (LLM + Grounded RAG + Hybrid Escalation) |
-|---|:---:|:---:|:---:|
-| **Intent Accuracy** | 30.0% | 50.0% | **82.5%** |
-| **Intent Macro-F1** | 0.0769 | 0.2242 | **0.7814** |
-| **Escalation F1** | 0.0000 | 0.0000 | **0.8640** |
-| **Escalation Safety Recall** | 0.0% | 0.0% | **100.0%** |
-| **Judge: Relevance (1-5)** | 1.70 / 5 | 3.10 / 5 | **4.60 / 5** |
-| **Judge: Groundedness (1-5)**| 2.20 / 5 | 3.40 / 5 | **4.80 / 5** |
-| **Judge: Helpfulness (1-5)** | 1.80 / 5 | 2.90 / 5 | **4.50 / 5** |
-| **Judge: Tone (1-5)** | 3.70 / 5 | 3.80 / 5 | **4.90 / 5** |
-| **Judge: Overall Score** | 2.24 / 5 | 3.20 / 5 | **4.62 / 5** |
+> **Read this first.** The golden set is currently **heuristic pre-labels, not
+> human annotations**, so every benchmark number in this repository is stamped
+> PROVISIONAL and the harness refuses to run without an explicit
+> `--allow-prelabelled` flag. The annotation workflow is built and ready; what
+> remains is a person doing the labelling. `SUBMISSION_AUDIT.md` lists exactly
+> which requirements are PASS, PARTIAL and FAIL, and nothing is claimed that the
+> artifacts in `results/` do not support.
 
 ---
 
-## ⏱️ Quickstart: Reproduce Everything in < 15 Minutes
+## 1. What I built
 
-### 1. Prerequisites & Environment Setup
-- **Python**: 3.10, 3.11, or 3.12+
-- **Inference Engine**:
-  - *Option A (Fastest & Recommended)*: Free [Groq API Key](https://console.groq.com/keys) (uses ultra-fast `openai/gpt-oss-120b`).
-  - *Option B (100% Local & Free)*: [Ollama](https://ollama.com/) with `llama3.2` (`ollama run llama3.2`).
+Three components behind one `handle_message()` call:
+
+1. **Intent classification** into a 10-category taxonomy derived from the data
+   rather than borrowed from Banking77.
+2. **Grounded reply drafting** — a reply tweet conditioned on the three most
+   similar historical `(customer message → Apple reply)` pairs, retrieved from a
+   corpus with the evaluation examples removed.
+3. **Escalation routing** — a hybrid of deterministic safety rules and an LLM
+   soft-signal pass, which always returns a stated reason for the decision.
+
+Around them sits the part the assignment actually weighs: an evaluation harness
+with two baselines, seven runtime leakage assertions, output validation, bootstrap
+confidence intervals, an LLM-as-judge on a five-dimension rubric, and honest
+PENDING markers where human input is still required.
+
+**What I deliberately did not build:** multi-turn dialogue state (the data is
+first-turn pairs), a live Twitter integration, a fine-tuned classifier (200
+labelled examples cannot support it), and a UI.
+
+---
+
+## 2. Architecture
+
+```
+                       incoming customer message
+                                   │
+         ┌─────────────────────────┼─────────────────────────┐
+         ▼                         ▼                         ▼
+  intent_classifier          retriever              escalation
+  LLM few-shot over          TF-IDF 1-2gram         hard rules ─┐
+  10-intent taxonomy         cosine top-k           (deterministic)
+  fallback → catch-all       corpus EXCLUDES        LLM soft signals
+  + flagged, never           all golden rows        ─────────────┘
+  silently absorbed                │                       │
+         │                         ▼                       ▼
+         └──────────────►  reply_generator  ────►  auto-handle | escalate
+                          grounded in top-3        + stated reason
+                                   │
+                                   ▼
+                          reply_validation
+                   280 chars · PII · context leak
+                   · brand-URL allowlist · non-empty
+```
+
+Evaluation path: `run_evaluation.py` → leakage gates → metrics + CIs → LLM judge
+→ failure analysis → `results/*.json` → `render_results.py` → this README.
+
+| Module | Responsibility |
+|---|---|
+| `src/golden_set.py` | Schema, label provenance, deterministic stratified sampling |
+| `src/leakage_checks.py` | Seven invariants that **raise**, not warn |
+| `src/reply_validation.py` | Output safety checks on generated tweets |
+| `src/evaluator.py` | Metrics, confusion matrices, bootstrap CIs |
+| `src/llm_judge.py` | Five-dimension rubric, blind to the reference reply |
+| `src/escalation.py` | Deterministic rules + LLM soft signals |
+| `src/ollama_client.py` | Groq/Ollama client, token pacer, rate-limit handling |
+
+---
+
+## 3. Quickstart
 
 ```bash
-# Clone or navigate to the repository
-cd hiver
-
-# Create and activate a virtual environment
-python -m venv venv
-# On Windows:
-venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
-
-# Install dependencies
+git clone <repo-url> && cd hiver
+python -m venv venv && venv/Scripts/activate      # Linux/macOS: source venv/bin/activate
 pip install -r requirements.txt
+
+cp .env.example .env        # then paste a free Groq key from console.groq.com/keys
 ```
 
-### 2. Configure API Key (Optional but Recommended)
-If using Groq for lightning-fast inference and 120B parameter LLM judging, add your key to `.env`:
+No API key? Everything runs locally instead — `ollama pull llama3.2`, then add
+`--local` to any command below. Local inference on CPU is roughly 10× slower.
+
+`data/processed/AppleSupport_threads.json` (5,000 threads) and
+`data/golden_set_prelabelled.csv` (200 examples) are **committed**, so the
+benchmark reproduces without downloading the 516 MB Kaggle file. To rebuild them
+from source, download `twcs.csv` into the repo root and run:
+
 ```bash
-echo GROQ_API_KEY=gsk_your_key_here > .env
-```
-*(If no key is configured, the pipeline automatically falls back to local Ollama `llama3.2`)*.
-
-### 3. Step-by-Step Reproduction Pipeline
-
-```mermaid
-flowchart LR
-    S1["Step A: Process Data<br/><code>process_brand.py</code><br/><i>5k Pairs (~40s)</i>"] --> S2["Step B: Intent Taxonomy<br/><code>discover_taxonomy.py</code><br/><i>10 Classes (~5s)</i>"]
-    S2 --> S3["Step C: Golden Set<br/><code>label_golden_set.py</code><br/><i>200 Examples (~10s)</i>"]
-    S3 --> S4["Step D: Benchmark Harness<br/><code>run_evaluation.py</code><br/><i>3 Agents + 5D Judge</i>"]
-
-    style S1 fill:#f9f9f9,stroke:#666
-    style S2 fill:#f9f9f9,stroke:#666
-    style S3 fill:#f9f9f9,stroke:#666
-    style S4 fill:#e8f8f5,stroke:#27ae60,stroke-width:2px
+python scripts/process_brand.py        # twcs.csv  -> data/processed/
+python scripts/discover_taxonomy.py    #           -> data/intent_taxonomy.json
+python scripts/build_golden_set.py     #           -> data/golden_set_raw.csv
+python scripts/label_golden_set.py     #           -> pre-labels (NOT ground truth)
 ```
 
-#### Step A: Process Data for AppleSupport (~40 seconds)
-Reconstructs customer-brand conversation pairs from the 3M-tweet dataset:
+Try one message end to end:
+
 ```bash
-python scripts/process_brand.py
-```
-*Output*: Generates `data/processed/AppleSupport_threads.json` containing 5,000 clean conversation threads.
-
-#### Step B: Discover & Define Intent Taxonomy (~5 seconds)
-```bash
-python scripts/discover_taxonomy.py
-```
-*Output*: Generates `data/intent_taxonomy.json` defining 10 domain-specific intent classes.
-
-#### Step C: Build & Label Golden Evaluation Set (~10 seconds)
-Creates a 200-example stratified evaluation set and applies audited gold labels:
-```bash
-python scripts/label_golden_set.py
-```
-*Output*: Generates `data/golden_set_labelled.csv` (stratified across standard, hard/short, hard/complex, and edge cases).
-
-#### Step D: Run Complete Benchmark Evaluation
-
-Fast path (~3 min) — a stratified subsample of 40 examples that preserves the
-escalation base rate, all 3 agents, no LLM judge:
-```bash
-python scripts/run_evaluation.py --n 40 --no-judge
-```
-
-Full reproduction of the headline numbers in `REPORT.md` (~55 min, dominated by
-sequential Groq calls: 3 per example for the main agent plus 1 judge call per reply):
-```bash
-python scripts/run_evaluation.py
-```
-
-All benchmark tables, confusion matrices, and failure diagnostics are printed to
-the console and saved in `results/`. Every number quoted in `REPORT.md` comes from
-`results/comparison.json` produced by this command.
-
-**Evaluation-integrity invariants** enforced by the harness (see `REPORT.md` §
-"What is misleading about my headline number?"):
-- Golden-set threads are removed from the retrieval corpus, so no system can
-  retrieve the reference reply it is scored against.
-- Baseline intent classifiers are scored on out-of-fold predictions only.
-- All systems are scored over the same explicit taxonomy label set.
-- The LLM judge never sees the reference reply, and sees the same fixed
-  brand-voice exemplars for every system.
-
----
-
-## 🏗️ System Architecture
-
-The AI Support Agent consists of four decoupled, modular subsystems:
-
-```mermaid
-flowchart TD
-    A["📩 Inbound Customer Tweet"] --> B["1. Intent Classifier<br/>(Few-Shot LLM / 10 Classes)"]
-    A --> E["3. Escalation Engine<br/>(Hybrid Cascade)"]
-
-    B -->|"Predicted Intent"| C["2. Grounded Retriever<br/>(TF-IDF over 5k Threads)"]
-    C -->|"Top-3 Historical Pairs"| D["4. Reply Generator<br/>(RAG Grounding & Persona)"]
-
-    E -->|"Hard Rules (Regex)<br/>+ Soft Signals (LLM)"| F{"Should Escalate?"}
-    
-    D --> G["Unified Agent Output"]
-    F -->|"YES (with Stated Reason)"| G
-    F -->|"NO (Auto-Handle)"| G
-
-    subgraph Output ["Agent Response Payload"]
-        G["✅ Output Object:<br/>• Classified Intent & Confidence<br/>• Grounded Reply Tweet (< 280 chars)<br/>• Escalation Decision & Reason"]
-    end
-
-    style A fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style G fill:#e8f8f5,stroke:#27ae60,stroke-width:2px
-```
-
-1. **Intent Classifier (`src/intent_classifier.py`)**:
-   - Classifies customer messages into 10 domain-grounded categories (`software_update_os`, `battery_and_charging`, `apple_id_and_icloud`, etc.).
-   - Compared against a Trivial Majority baseline and a TF-IDF + Logistic Regression simple baseline.
-
-2. **Conversation Retriever (`src/retriever.py`)**:
-   - TF-IDF indexing over 5,000 historical AppleSupport conversation pairs.
-   - Filters candidate exemplars matching the classified intent to ground the generative reply.
-
-3. **Hybrid Escalation Engine (`src/escalation.py`)**:
-   - **Fast-Path Hard Rules**: Deterministic regex matching for profanity/abuse, legal threats, PII exposure, and physical hardware hazards.
-   - **LLM Soft Signals**: Evaluates multi-turn frustration loops, ambiguous one-liners, and unresolvable customer distress.
-
-4. **Reply Generator (`src/reply_generator.py`)**:
-   - Enforces Apple's signature support persona: empathetic opening, concise actionable troubleshooting, appropriate DM handoffs, and Twitter character budget (<280 chars).
-
----
-
-## 📊 Evaluation & LLM-as-a-Judge Rubric
-
-Evaluated using both deterministic NLP metrics and a multi-dimensional LLM Judge (`src/llm_judge.py`):
-1. **Relevance (1-5)**: Does the reply address the specific customer issue?
-2. **Groundedness (1-5)**: Does the response mirror Apple's verified troubleshooting procedures without hallucination?
-3. **Helpfulness (1-5)**: Does it provide actionable next steps or support links?
-4. **Tone (1-5)**: Is the response empathetic, professional, and brand-aligned?
-5. **Completeness (1-5)**: Does it address all issues raised in multi-issue queries?
-
----
-
-## 📁 Repository Structure
-
-```
-hiver/
-├── data/
-│   ├── processed/
-│   │   └── AppleSupport_threads.json   # Cleaned 5,000 AppleSupport conversation pairs
-│   ├── golden_set_labelled.csv         # 200 hand-audited stratified evaluation messages
-│   └── intent_taxonomy.json            # 10-category grounded intent taxonomy
-├── docs/
-│   └── LABELLING_GUIDELINES.md         # Detailed annotation protocol and Kappa analysis
-├── results/                            # Metrics JSONs, judge scores, and comparison tables
-├── scripts/
-│   ├── process_brand.py                # Fast vectorized data extraction pipeline
-│   ├── discover_taxonomy.py            # Data-driven taxonomy generation
-│   ├── build_golden_set.py             # Stratified sampling script
-│   ├── label_golden_set.py             # Validation and auditing script
-│   └── run_evaluation.py               # Complete benchmark evaluation harness
-├── src/
-│   ├── agent.py                        # Orchestrator for Trivial, Simple, and Main Agents
-│   ├── data_processor.py               # Dataset processing routines
-│   ├── escalation.py                   # Hybrid hard-rule + LLM soft-signal escalation
-│   ├── evaluator.py                    # Accuracy, Macro-F1, ROUGE-1/2/L calculations
-│   ├── intent_classifier.py            # Trivial, TF-IDF, and LLM classifiers
-│   ├── llm_judge.py                    # 5D LLM-as-a-Judge evaluation module
-│   ├── ollama_client.py                # Dual local Ollama & Groq API client
-│   ├── reply_generator.py              # Persona and RAG reply generators
-│   └── retriever.py                    # TF-IDF conversation retriever
-├── DECISION_LOG.md                     # 12 engineering & product architectural decisions
-├── REPORT.md                           # Comprehensive 6-page technical report
-├── requirements.txt                    # Project dependencies
-└── README.md                           # This guide
+python scripts/demo.py "@AppleSupport my battery dies in 2 hours since iOS 11"
 ```
 
 ---
 
-## 🔬 Running Tests
-To verify all unit components:
+## 4. Headline benchmark
+
 ```bash
-python -c "from src.agent import SupportAgent; from src.data_processor import load_processed_data; from src.intent_classifier import load_taxonomy; print('All imports successful!')"
+python scripts/run_evaluation.py --benchmark headline --allow-prelabelled
 ```
+
+40 examples, stratified on escalation flag and intent, seed 42, identical for all
+three systems. `--allow-prelabelled` is required because the golden set is not yet
+human-reviewed; drop it once it is, and the same command runs against
+`data/golden_set_final.csv`.
+
+The extended run is `--benchmark full` (all 200 examples).
+
+**On the 15-minute budget.** The harness measures and prints its own wall time and
+states WITHIN or OVER against the 900-second budget. The measured figure is in the
+results table below and in `results/run_config_headline.json`. Most of that time is
+*waiting on free-tier rate limits*, not computation — the token pacer sleeps
+precisely against the provider's remaining-token headers. If a run exceeds the
+budget on your key, the fastest honest options are `--no-judge` (the judge is
+roughly two-thirds of the API calls) or a provider tier without a per-minute cap.
+I have not tuned the benchmark size to make a number look good.
+
+---
+
+## 5. Results
+
+<!-- BEGIN GENERATED RESULTS: headline -->
+*Not yet generated. Run the headline benchmark, then*
+`python scripts/render_results.py --benchmark headline`.
+<!-- END GENERATED RESULTS: headline -->
+
+Every figure above is generated from `results/comparison_headline.json` by
+`scripts/render_results.py`. `python scripts/render_results.py --check` fails if
+this README has drifted from the artifacts.
+
+---
+
+## 6. Evaluation methodology
+
+**Two baselines, both real.**
+
+| System | Intent | Reply | Escalation |
+|---|---|---|---|
+| **Trivial** | majority class from the training folds | one fixed template | never escalates |
+| **Simple** | TF-IDF + logistic regression, cross-fitted | nearest historical reply, verbatim | deterministic rules only |
+| **Main** | LLM few-shot over the taxonomy | LLM grounded in top-3 retrieved precedents | rules + LLM soft signals |
+
+The trivial baseline exists to show what accuracy is available for free from the
+class prior. The simple baseline exists because "retrieve the closest past reply"
+is a genuinely reasonable product, and beating it is the bar the LLM has to clear.
+
+**Metrics.** Intent: accuracy with a bootstrap 95% CI, macro-F1, weighted-F1,
+per-class precision/recall/F1, confusion matrix, off-taxonomy prediction count.
+Escalation: accuracy with CI, precision, recall, F1, and the full TP/FP/FN/TN
+breakdown — false negatives are called out separately because a missed handoff is
+the failure that matters. Replies: ROUGE-1/2/L against the brand's actual reply,
+plus observed validation violations by type. Judge: per-dimension means, standard
+deviations, number judged, and number of judge errors.
+
+**LLM-as-judge.** Five dimensions (relevance, groundedness, helpfulness, tone,
+completeness) scored 1–5. The judge never sees the reference reply for the example
+it is scoring, and sees the same three fixed brand-voice exemplars for every
+system. It runs on a different model from the agent.
+
+**Judge–human agreement.** Required by the assignment, currently **PENDING**. The
+workflow exists (`build_judge_calibration_task.py` →
+`compute_judge_calibration.py`) and computes Spearman, exact and adjacent
+agreement, MAE and quadratic-weighted kappa — but only from real human scores. No
+statistic is estimated in the meantime.
+
+```bash
+python scripts/build_judge_calibration_task.py   # export replies to score
+# a human fills data/judge_calibration/judge_calibration_human.csv
+python scripts/compute_judge_calibration.py
+```
+
+---
+
+## 7. Golden set
+
+200 examples, stratified across four difficulty bands (standard, hard/short,
+hard/complex, edge cases) at build time.
+
+Labels move through three stages, and the stage is recorded in the row:
+
+| File | `annotation_status` | Usable as ground truth |
+|---|---|---|
+| `data/golden_set_raw.csv` | `pending_review` | no |
+| `data/golden_set_prelabelled.csv` | `pre_labelled_heuristic` | **no** |
+| `data/golden_set_final.csv` | `human_reviewed` | yes |
+
+`scripts/label_golden_set.py` writes **pre-labels** by regex. They exist to make a
+human faster, not to stand in for one. `src/golden_set.load_evaluation_set` raises
+unless every row is human-reviewed, and a file that merely flips the status column
+while leaving the labels byte-identical to the pre-labels is rejected too — that
+happened once during the audit and the offending file is in `data/quarantine/`
+with an explanation.
+
+To complete the annotation:
+
+```bash
+python scripts/build_annotation_task.py           # two independent annotator files
+# annotate both, setting annotation_status=human_reviewed per row
+python scripts/compute_annotation_agreement.py    # real Cohen's kappa on the overlap
+python scripts/finalize_golden_set.py             # -> data/golden_set_final.csv
+```
+
+The two files share a 50-row overlap so inter-annotator agreement is measured on
+genuinely independent annotations. Until that exists, `results/annotation_agreement.json`
+records `status: PENDING` and no kappa is quoted anywhere.
+
+---
+
+## 8. Leakage controls
+
+Seven invariants, asserted at runtime. A violation aborts the run with exit code 4
+rather than printing a number.
+
+| Invariant | Why it exists |
+|---|---|
+| Golden examples excluded from the retrieval corpus | The golden set was sampled from the retrieval threads, so the nearest neighbour was the example itself. This inflated the simple baseline to ROUGE-1 0.797 and groundedness 5.00/5.00 at zero variance. |
+| No system retrieves the example it is scored on | Runtime check that catches near-duplicates the corpus filter misses |
+| Baselines scored on out-of-fold predictions only | The TF-IDF classifier was fitted on the whole golden set and evaluated on part of it |
+| All systems see identical examples in identical order | Otherwise the comparison is not a comparison |
+| No reply is byte-identical to its reference | Catches a reference reaching the prompt by any route |
+| Judge never sees the reference reply | Showing it turns the judge into a similarity metric that rewards copying |
+| Judge sees the same fixed exemplars for every system | Each system was previously judged against its own retrieved context |
+
+`tests/test_leakage.py` constructs a deliberately leaked scenario for each and
+asserts it raises.
+
+---
+
+## 9. Failure analysis
+
+`results/failure_analysis_headline.json` records every failing example with its
+id, message, gold and predicted intent, gold and predicted escalation, the
+generated reply, the failure reasons, and a severity ranking that puts missed
+escalations above intent errors. The top five with hypotheses and mitigations are
+written up in `REPORT.md`. If a run produces fewer than five genuine failures the
+harness says so rather than padding the list.
+
+---
+
+## 10. Safety and escalation
+
+Deterministic rules cover: legal threats, physical safety, account security,
+billing disputes, explicit requests for a human, severe frustration, media
+threats, strong profanity, and PII posted publicly. Anything a rule catches is
+escalated before the LLM is consulted, and every escalation carries a stated
+reason.
+
+`tests/test_escalation.py` asserts the rules fire on a 15-example safety subset
+and — equally important — that they do **not** fire on ten ordinary support
+messages. Claims are bounded to that evidence: *100% recall on a 15-example
+hand-built safety subset*, never "guaranteed safe".
+
+Severe ambiguity is explicitly **not** covered by a deterministic rule. Messages
+like *"see, it did it again"* deserve a human but are not keyword-detectable, so
+they are delegated to the LLM layer, and a test documents that gap rather than
+hiding it.
+
+---
+
+## 11. Limitations
+
+- **Labels are heuristic.** Every benchmark number measures agreement with a regex
+  script, not with a human. This is the dominant limitation and it invalidates any
+  strong claim about accuracy.
+- **Judge–human agreement is unmeasured.** The judge may be systematically wrong
+  in a direction nobody has checked.
+- **40 examples** in the headline benchmark. The confidence intervals are wide
+  enough that several between-system differences are not resolvable.
+- **First-turn pairs only** — repeat-contact frustration cannot be detected.
+- **One brand, one channel, 2017-era English Twitter.** Nothing here generalises
+  to email, to other brands, or to today's traffic without re-evaluation.
+- **Free-tier model variance.** Results depend on which Groq model had daily
+  budget remaining; `run_config_*.json` records what actually ran.
+
+`REPORT.md` § "What is misleading about my headline number?" goes into this
+properly.
+
+---
+
+## 12. What I would do with one more week
+
+Ordered by how much each would change my confidence, not by how interesting it is.
+Detail in `REPORT.md`.
+
+1. Genuinely hand-label all 200 examples, dual-annotate 50, publish the real kappa.
+2. Human-score 40 replies and publish real judge–human agreement.
+3. Expand the safety subset into an adversarial red-team suite.
+4. Hybrid BM25 + embedding retrieval, measured as retrieval recall@k rather than
+   inferred from downstream ROUGE.
+5. Confidence calibration so low-confidence predictions route to a human.
+6. Precision/recall trade-off curve for escalation with an explicit cost model.
+7. Drift monitoring and a feedback loop from agent edits.
+
+---
+
+## 13. Repository map
+
+```
+src/            agent, retriever, classifier, escalation, judge,
+                golden_set (provenance), leakage_checks, reply_validation
+scripts/        process_brand, build/label golden set, annotation workflow,
+                judge calibration, run_evaluation, render_results, demo
+tests/          escalation, golden set, leakage, metrics, reply validation
+data/           processed threads, taxonomy, golden set stages, annotation tasks,
+                quarantine (rejected artifacts, with explanations)
+results/        benchmark artifacts — every number in the docs comes from here
+REPORT.md       problem framing, results, failure analysis, what is misleading
+DECISION_LOG.md 20 non-obvious decisions and their rejected alternatives
+SUBMISSION_AUDIT.md  requirement-by-requirement PASS / PARTIAL / FAIL
+```
+
+---
+
+## 14. Tests
+
+```bash
+python -m pytest tests/ -q
+python scripts/render_results.py --check     # docs must match results/
+```
+
+---
+
+## 15. References
+
+- Dataset: Thought Vector, *Customer Support on Twitter* (Kaggle), CC BY-NC-SA 4.0.
+- Banking77 (Casanueva et al., 2020) — evaluated as an intent-taxonomy source and
+  **not** used; its 77 banking intents do not map onto device support.
+- ROUGE via `rouge-score`; classification metrics, `StratifiedKFold` and
+  `LogisticRegression` via scikit-learn; Spearman via SciPy.
+- Cohen's kappa and quadratic-weighted kappa implemented directly in
+  `scripts/compute_annotation_agreement.py` and `scripts/compute_judge_calibration.py`
+  so the weighting scheme is explicit and auditable.
+- Inference: Groq OpenAI-compatible API, or Ollama for local runs.
+- LLM-as-judge rubric design follows the now-standard multi-dimension pattern
+  (e.g. MT-Bench / G-Eval); the specific dimensions and anchors are my own.

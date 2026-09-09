@@ -1,9 +1,29 @@
-# Data files (too large for git)
-data/raw/
-*.csv
-!data/golden_set.csv
+# ── Secrets ───────────────────────────────────────────────────────────
+# Never commit API keys. .env.example documents the required variables.
+.env
+.env.local
+*.key
 
-# Python
+# ── Large raw data (not committed; see README "Quickstart") ───────────
+# The Kaggle source file is ~516 MB. scripts/process_brand.py derives
+# data/processed/AppleSupport_threads.json from it, and that IS committed
+# so the benchmark reproduces without the download.
+twcs.csv
+data/raw/
+
+# ── Benchmark artifacts that ARE committed ────────────────────────────
+# results/ holds the evidence for every number in REPORT.md, so it is tracked.
+# Only bulky intermediates and logs are ignored.
+results/*.log
+results/*_raw_results_*.json
+results/*.png
+
+# ── Human annotation work in progress ─────────────────────────────────
+# The annotation templates are committed; a partially filled working copy is not.
+data/annotation/*.working.csv
+data/judge_calibration/judge_scores_cache.json
+
+# ── Python ────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
@@ -11,20 +31,17 @@ __pycache__/
 dist/
 build/
 .eggs/
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Virtual environments
+# ── Environments ──────────────────────────────────────────────────────
 venv/
 env/
-.env
+.venv/
 
-# IDE
+# ── Editors / OS ──────────────────────────────────────────────────────
 .vscode/
 .idea/
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Results (regeneratable)
-results/*.png
-results/*.json

@@ -8,15 +8,92 @@ import re
 import time
 import requests
 import os
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
 OLLAMA_BASE = "http://localhost:11434"
 GROQ_BASE = "https://api.groq.com/openai/v1"
 
-# Which Groq model the agent uses. Overridable via GROQ_MODEL in the environment
-# so a run can be moved to another model without editing code — necessary in
-# practice because each model carries its own per-day token budget.
-DEFAULT_GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b")
+# Which Groq model the agent uses. Overridable via GROQ_MODEL so a run can move
+# to another model without editing code — necessary in practice because each
+# model carries its own per-day token budget on the free tier, and exhausting one
+# should not block the benchmark. The committed benchmark artifacts were produced
+# with this default; results/run_config_*.json records what actually ran.
+DEFAULT_GROQ_MODEL = os.environ.get("GROQ_MODEL", "qwen/qwen3.8-27b")
+
+
+class _TokenPacer:
+    """
+    Client-side pacing against Groq's tokens-per-minute budget.
+
+    Groq returns the remaining TPM budget and its refill time on every response.
+    Without using them the only way to discover the limit is to hit a 429 and
+    back off, and because a single request can need more tokens than the bucket
+    refills in the server's suggested wait, that path burns far more wall time
+    than the limit itself requires. Reserving against the last known headers
+    turns a retry storm into a short, precise sleep.
+    """
+
+    def __init__(self):
+        self.remaining: dict[str, float] = {}
+        self.reset_at: dict[str, float] = {}
+
+    @staticmethod
+    def _parse_duration(text: str) -> float:
+        """Parse Groq's '1m2.5s' / '56.19s' / '615ms' reset format into seconds."""
+        if not text:
+            return 0.0
+        total, num = 0.0, ""
+        i = 0
+        while i < len(text):
+            c = text[i]
+            if c.isdigit() or c == ".":
+                num += c
+                i += 1
+            elif text[i:i + 2] == "ms":
+                total += float(num or 0) / 1000.0
+                num = ""; i += 2
+            elif c == "h":
+                total += float(num or 0) * 3600; num = ""; i += 1
+            elif c == "m":
+                total += float(num or 0) * 60; num = ""; i += 1
+            elif c == "s":
+                total += float(num or 0); num = ""; i += 1
+            else:
+                i += 1
+        return total
+
+    def wait_if_needed(self, model: str, estimated_tokens: float) -> None:
+        remaining = self.remaining.get(model)
+        if remaining is None or remaining >= estimated_tokens:
+            return
+        delay = max(0.0, self.reset_at.get(model, 0.0) - time.time())
+        if delay <= 0:
+            return
+        print(f"  [pacing {model}] {remaining:.0f} tokens left, need ~{estimated_tokens:.0f}; "
+              f"sleeping {delay:.1f}s", flush=True)
+        time.sleep(delay + 0.3)
+        # Assume a full bucket after the reset window elapses.
+        self.remaining[model] = None
+
+    def observe(self, model: str, headers) -> None:
+        rem = headers.get("x-ratelimit-remaining-tokens")
+        rst = headers.get("x-ratelimit-reset-tokens")
+        if rem is not None:
+            try:
+                self.remaining[model] = float(rem)
+            except ValueError:
+                self.remaining[model] = None
+        if rst:
+            self.reset_at[model] = time.time() + self._parse_duration(rst)
+
+
+_PACER = _TokenPacer()
 
 
 def _ollama_generate(prompt: str, model: str = "llama3.2", temperature: float = 0.3,
@@ -48,13 +125,15 @@ def _ollama_generate(prompt: str, model: str = "llama3.2", temperature: float = 
             raise RuntimeError(f"Ollama error: {e}")
 
 
+from src.rate_limiter import default_rate_limiter, GroqRateLimitExceeded
+
+
 def _groq_generate(prompt: str, model: str = "openai/gpt-oss-120b",
                    temperature: float = 0.3, max_tokens: int = 512,
                    system: str = None, reasoning_effort: str = "low") -> str:
     """Call Groq's OpenAI-compatible API."""
     api_key = os.environ.get("GROQ_API_KEY", "")
     if not api_key:
-        # Try loading from .env file
         env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
         if os.path.exists(env_path):
             with open(env_path) as f:
@@ -81,49 +160,50 @@ def _groq_generate(prompt: str, model: str = "openai/gpt-oss-120b",
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
-    # gpt-oss-* are reasoning models: reasoning tokens are billed against
-    # max_tokens BEFORE any visible content is emitted. At max_tokens=512 a
-    # single reply consumed 510 reasoning tokens and returned an empty string
-    # with finish_reason="length" — a silent generation failure that showed up
-    # downstream as a blank reply. Keep reasoning short for generation calls.
     if model.startswith("openai/gpt-oss") and reasoning_effort:
         payload["reasoning_effort"] = reasoning_effort
 
-    attempts = 6
+    prompt_chars = sum(len(m["content"]) for m in messages)
+    estimated = int(prompt_chars / 4.0 + max_tokens)
+
+    attempts = default_rate_limiter.max_retries
     for attempt in range(attempts):
         try:
+            default_rate_limiter.acquire(estimated_tokens=estimated)
             resp = requests.post(f"{GROQ_BASE}/chat/completions",
                                  json=payload, headers=headers, timeout=90)
+            default_rate_limiter.observe_response(resp.headers)
             if resp.status_code == 429:
-                # Rate limited. Groq reports exactly how long to wait; guessing
-                # with a capped exponential backoff instead meant a sustained
-                # tokens-per-minute limit exhausted every attempt and the loop
-                # fell out of the bottom returning None, which surfaced far away
-                # as "'NoneType' object has no attribute 'strip'".
                 retry_after = resp.headers.get("retry-after")
                 try:
-                    wait = float(retry_after) if retry_after else 2 ** (attempt + 2)
-                except ValueError:
-                    wait = 2 ** (attempt + 2)
-                wait = min(90.0, max(1.0, wait)) + 0.5
-                # Print WHICH limit was hit. Groq distinguishes tokens-per-minute
-                # from tokens-per-day, and only the response body says which —
-                # without it a daily-budget exhaustion is indistinguishable from
-                # ordinary throttling, and you wait out a limit that will not lift.
-                try:
-                    why = resp.json().get("error", {}).get("message", "")[:170]
+                    why = resp.json().get("error", {}).get("message", "")
                 except Exception:
-                    why = resp.text[:170]
-                print(f"\n  [groq 429 {model}] waiting {wait:.1f}s "
-                      f"(attempt {attempt + 1}/{attempts}): {why}", flush=True)
-                time.sleep(wait)
-                continue
+                    why = resp.text
+
+                if "per day" in why.lower() or "(tpd)" in why.lower():
+                    raise RuntimeError(
+                        f"Groq daily token budget exhausted for {model}.\n"
+                        f"  {why[:200]}\n"
+                        f"  This resets on a 24h cycle. Either wait, set "
+                        f"GROQ_MODEL to a model with remaining budget, or run "
+                        f"with --local against Ollama."
+                    )
+
+                if attempt < attempts - 1:
+                    print(f"\n  Groq rate limit reached — backing off (attempt {attempt + 1}/{attempts})", flush=True)
+                    wait = default_rate_limiter.handle_429(attempt, retry_after=retry_after)
+                    time.sleep(wait)
+                    continue
+                else:
+                    print(f"\n  Groq unavailable after {attempts} attempts; example marked failed.", flush=True)
+                    raise GroqRateLimitExceeded(
+                        f"Groq rate limit exceeded after {attempts} attempts for {model}: {why[:150]}"
+                    )
+
             resp.raise_for_status()
             choice = resp.json()["choices"][0]
             content = (choice["message"].get("content") or "").strip()
 
-            # Empty content because the budget was spent on reasoning. Retry once
-            # with a much larger budget rather than returning "" to the caller.
             if (not content and choice.get("finish_reason") == "length"
                     and attempt < attempts - 1):
                 payload["max_tokens"] = min(8192, payload["max_tokens"] * 4)
@@ -137,20 +217,18 @@ def _groq_generate(prompt: str, model: str = "openai/gpt-oss-120b",
             return content
         except requests.exceptions.HTTPError as e:
             if attempt < attempts - 1 and resp.status_code in (429, 500, 502, 503):
-                time.sleep(2 ** (attempt + 1))
+                time.sleep(2.0 ** (attempt + 1))
             else:
                 raise RuntimeError(f"Groq API error: {e}\nResponse: {resp.text}")
-        except RuntimeError:
+        except (RuntimeError, GroqRateLimitExceeded):
             raise
         except Exception as e:
             if attempt < attempts - 1:
-                time.sleep(2 ** attempt)
+                time.sleep(2.0 ** attempt)
             else:
                 raise RuntimeError(f"Groq error: {e}")
 
-    # Every path through the retry loop must end in a value or an exception.
-    # Falling out of the bottom previously returned None to the caller.
-    raise RuntimeError(f"Groq gave no usable response after {attempts} attempts")
+    raise GroqRateLimitExceeded(f"Groq gave no usable response after {attempts} attempts")
 
 
 def generate(prompt: str, model: str = "llama3.2", temperature: float = 0.3,
@@ -187,9 +265,12 @@ def generate_json(prompt: str, model: str = "llama3.2", temperature: float = 0.1
     else:
         system = "Respond ONLY with valid JSON. No markdown, no explanation."
 
-    raw = generate(prompt, model=model, temperature=temperature,
-                   max_tokens=max_tokens, system=system, use_groq=use_groq,
-                   reasoning_effort=reasoning_effort, groq_model=groq_model)
+    try:
+        raw = generate(prompt, model=model, temperature=temperature,
+                       max_tokens=max_tokens, system=system, use_groq=use_groq,
+                       reasoning_effort=reasoning_effort, groq_model=groq_model)
+    except (GroqRateLimitExceeded, RuntimeError) as e:
+        return {"raw_response": "", "error": str(e), "parse_error": True, "failed": True}
 
     cleaned = raw.strip()
     try:

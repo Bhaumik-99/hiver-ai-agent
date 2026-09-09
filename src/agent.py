@@ -55,7 +55,10 @@ class SupportAgent:
             use_groq=self.use_groq,
         )
 
-        return {
+        is_failed = bool(intent_result.get("failed") or escalation.get("failed"))
+        error_msg = intent_result.get("reasoning") if intent_result.get("failed") else escalation.get("reason")
+
+        res = {
             "customer_message": customer_message,
             "intent": intent_result,
             "reply": reply,
@@ -63,6 +66,10 @@ class SupportAgent:
             "similar_conversations": similar[:3],
             "processing_time": round(time.time() - start_time, 2),
         }
+        if is_failed:
+            res["failed"] = True
+            res["error"] = error_msg
+        return res
 
 
 class TrivialAgent:

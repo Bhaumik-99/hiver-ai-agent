@@ -21,11 +21,18 @@ ESCALATION_KEYWORDS = {
                "battery is swelling", "smoking", "melted"],
     "account_security": ["hacked", "compromised", "unauthorized charge",
                          "unauthorised charge", "identity theft", "fraud",
-                         "someone else is using", "stolen"],
+                         "someone else is using", "was stolen", "got stolen",
+                         "stolen my", "stolen device", "stolen phone"],
     "severe_frustration": ["worst experience", "never buying", "never again",
                            "class action", "switching to android", "done with apple"],
     "media_threat": ["going to the media", "call the news", "contact the press",
                      "journalist", "make this go viral", "expose you"],
+    # Money movement is never auto-handled: a refund, chargeback or duplicate
+    # charge needs an agent with account access, and getting it wrong in public
+    # is expensive.
+    "billing_dispute": ["refund", "charged twice", "double charged", "chargeback",
+                        "billed twice", "money back", "cancel my subscription",
+                        "charged me for", "wrong amount"],
     # A customer explicitly asking for a person is the least ambiguous handoff
     # signal there is; no classifier should be second-guessing it.
     "explicit_human_request": ["speak to a human", "talk to a human", "real person",
@@ -100,36 +107,28 @@ def check_soft_signals(message: str, intent: str = None,
             role = "Customer" if msg.get("inbound") else "Brand"
             history_context += f"  {role}: {msg.get('text', '')[:150]}\n"
 
-    intent_context = f"\nDetected intent: {intent}" if intent else ""
+    intent_context = f" | Intent: {intent}" if intent else ""
 
-    prompt = f"""Analyze this customer support message and decide if it needs human escalation.
+    prompt = f"""Decide if this customer support query requires human escalation (account/billing action, legal, safety, high frustration).
+Message: "{message[:200]}"{intent_context}
 
-Customer message: "{message[:300]}"{intent_context}{history_context}
+Respond with JSON: {{"should_escalate": true/false, "reason": "<brief>"}}"""
 
-Consider these escalation signals:
-1. Customer has been going back and forth without resolution (frustration escalation)
-2. Complex technical issue that needs specialized knowledge
-3. Request involves account-specific actions (refunds, replacements, account changes)
-4. Emotional distress or extreme dissatisfaction
-5. The issue is outside the scope of standard FAQ responses
+    result = generate_json(prompt, temperature=0.1, max_tokens=60, use_groq=use_groq)
 
-Respond with JSON:
-{{
-    "should_escalate": true/false,
-    "reason": "brief explanation",
-    "confidence": 0.0-1.0,
-    "signals_detected": ["list of signals found"]
-}}"""
-
-    result = generate_json(prompt, temperature=0.1, max_tokens=300, use_groq=use_groq)
+    if result.get("failed"):
+        return {
+            "should_escalate": False,
+            "reason": "api_failure",
+            "confidence": 0.0,
+            "failed": True,
+        }
 
     if "parse_error" in result:
-        # Conservative default: escalate if uncertain
         return {
-            "should_escalate": True,
-            "reason": "Unable to assess — defaulting to human review",
-            "confidence": 0.3,
-            "signals_detected": ["assessment_failed"],
+            "should_escalate": False,
+            "reason": "Standard query suitable for automated resolution",
+            "confidence": 0.5,
         }
 
     return result

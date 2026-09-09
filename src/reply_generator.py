@@ -58,47 +58,39 @@ class LLMReplyGenerator:
         context_block = ""
         if similar_convos:
             examples = []
-            for i, conv in enumerate(similar_convos[:3], 1):
+            for i, conv in enumerate(similar_convos[:2], 1):
                 examples.append(
                     f"Example {i}:\n"
-                    f"  Customer: {conv['customer_message'][:200]}\n"
-                    f"  {self.brand_name}: {conv['brand_reply'][:200]}"
+                    f"  Customer: {conv['customer_message'][:140]}\n"
+                    f"  Reply: {conv['brand_reply'][:140]}"
                 )
-            context_block = "\n\n".join(examples)
+            context_block = "\n".join(examples)
 
-        intent_note = f"\nDetected intent: {intent}" if intent else ""
+        intent_note = f" (Intent: {intent})" if intent else ""
 
-        system_prompt = f"""You are {self.brand_name}, Apple's official customer support account on Twitter.
-Your responses should:
-- Be concise (Twitter has character limits, keep under 280 characters ideally)
-- Be empathetic and professional
-- Offer specific, actionable help
-- Direct customers to DM for private/account-specific issues
-- Use Apple's actual support style (see examples below)
-- Start with @ mention of the customer (use @customer as placeholder)
-- End with agent initials like ^XX if the examples show this pattern"""
+        system_prompt = (
+            f"You are {self.brand_name} on Twitter. Write an empathetic, actionable reply under "
+            "280 characters starting with @customer and directing to DM for account-specific issues."
+        )
 
-        prompt = f"""Draft a reply to this customer message.{intent_note}
+        prompt = f"""Customer: "{message[:200]}"{intent_note}
 
-Customer message: "{message[:300]}"
-
-Here are examples of how {self.brand_name} has responded to similar issues:
-
+Reference examples:
 {context_block}
 
-Write a single reply tweet. Be concise and helpful. Match the brand's voice shown in the examples."""
+Write a single reply tweet matching brand voice:"""
 
         try:
             reply = generate(
                 prompt,
                 model=self.model,
                 temperature=0.4,
-                max_tokens=200,
+                max_tokens=100,
                 system=system_prompt,
                 use_groq=self.use_groq,
             )
-        except RuntimeError as e:
-            print(f"\n  [generation failed] {e}")
+        except Exception as e:
+            print(f"\n  [generation failed] {e}", flush=True)
             return ""
 
         reply = reply.strip()

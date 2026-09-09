@@ -130,8 +130,7 @@ class TfidfClassifier:
     def __init__(self):
         self.vectorizer = TfidfVectorizer(max_features=5000, stop_words="english",
                                           ngram_range=(1, 2))
-        self.model = LogisticRegression(max_iter=1000, random_state=42,
-                                        multi_class="multinomial")
+        self.model = LogisticRegression(max_iter=1000, random_state=42)
         self.fitted = False
 
     def fit(self, messages: list[str], labels: list[str]):
@@ -175,29 +174,31 @@ class LLMClassifier:
     def _build_prompt(self, message: str) -> str:
         intents = self.taxonomy.get("intents", [])
         intent_descriptions = "\n".join(
-            f"- {intent['name']}: {intent['description']} (e.g., {', '.join(intent.get('keywords', [])[:3])})"
+            f"- {intent['name']}: {intent['description']}"
             for intent in intents
         )
-        intent_names = [i["name"] for i in intents]
 
-        return f"""Classify the following customer support message into exactly one intent category.
-
-Available intents:
+        return f"""Classify the customer message into one intent category:
 {intent_descriptions}
 
-Customer message: "{message}"
+Message: "{message[:250]}"
 
-Respond with JSON: {{"intent": "<intent_name>", "confidence": <0.0-1.0>, "reasoning": "<brief reason>"}}
-The intent MUST be one of: {intent_names}"""
+Respond with JSON: {{"intent": "<intent_name>", "confidence": <0.0-1.0>}}"""
 
     def predict(self, message: str) -> dict:
         prompt = self._build_prompt(message)
-        # 400 is ample for a 3-field JSON at reasoning_effort="low", and the
-        # free-tier limit that actually binds here is tokens-per-minute.
         result = generate_json(prompt, model=self.model, temperature=0.1,
-                               max_tokens=250, use_groq=self.use_groq)
+                               max_tokens=80, use_groq=self.use_groq)
 
         valid_intents = [i["name"] for i in self.taxonomy.get("intents", [])]
+
+        if result.get("failed"):
+            return {
+                "intent": "unknown",
+                "confidence": 0.0,
+                "reasoning": result.get("error", "API request failed"),
+                "failed": True,
+            }
 
         if "parse_error" in result:
             return {"intent": self.fallback_intent, "confidence": 0.0,
@@ -210,10 +211,6 @@ The intent MUST be one of: {intent_names}"""
                     result["intent"] = vi
                     break
             else:
-                # Falling back to whatever sits at taxonomy position 0 silently
-                # biases every failure toward one arbitrary class. Fall back to the
-                # explicit catch-all bucket instead, and flag it so the failure rate
-                # is measurable rather than hidden inside that class's recall.
                 result["intent"] = self.fallback_intent
                 result["confidence"] = 0.0
                 result["fallback"] = True

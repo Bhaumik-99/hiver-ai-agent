@@ -13,7 +13,7 @@ from src.ollama_client import generate_json, check_groq
 # (see src/ollama_client.DEFAULT_GROQ_MODEL). A model scoring its own output
 # rates it systematically higher than a neutral grader would, and the prior
 # setup used one model as both generator and judge.
-JUDGE_GROQ_MODEL = os.environ.get("JUDGE_GROQ_MODEL", "qwen/qwen3.8-27b")
+JUDGE_GROQ_MODEL = os.environ.get("JUDGE_GROQ_MODEL", "openai/gpt-oss-120b")
 
 
 # Evaluation rubric with 5 dimensions
@@ -276,63 +276,3 @@ def compute_judge_human_agreement(judge_scores: list[float],
         "mean_absolute_error": round(mae, 4),
         "n_samples": n,
     }
-
-
-def run_judge_calibration(golden_set: list[dict], style_exemplars: list[str] = None,
-                          use_groq: bool = None, n: int = 60,
-                          seed: int = 42, ollama_model: str = "llama3.2:latest") -> dict:
-    """
-    Calibrate the LLM judge against the reference reply-quality labels.
-
-    Method: take `n` golden examples, hand the judge the brand's OWN historical
-    reply as if it were a system output, and compare the judge's score to the
-    `gold_reply_quality` label already attached to that example. If the judge
-    cannot rank replies the way the reference labels do, none of its scores on
-    the systems under test mean anything.
-
-    IMPORTANT CAVEAT — read before quoting this number: in this repo the
-    `gold_reply_quality` column is produced programmatically by
-    `scripts/label_golden_set.py:score_reply_quality`, not by a human rater.
-    So this measures judge-vs-reference-label agreement, NOT judge-vs-human
-    agreement. Replacing that column with genuine human ratings is what would
-    turn this into the human-agreement evidence the brief asks for; the code
-    path is identical either way.
-    """
-    import random as _random
-    rng = _random.Random(seed)
-
-    scored = [g for g in golden_set if g.get("brand_reply")]
-    sample = rng.sample(scored, min(n, len(scored)))
-
-    judge_scores, ref_scores, rows = [], [], []
-    for i, g in enumerate(sample):
-        print(f"  Calibrating judge {i+1}/{len(sample)}...", end="\r", flush=True)
-        j = judge_reply(
-            customer_message=g["customer_message"],
-            generated_reply=g["brand_reply"],
-            style_exemplars=style_exemplars,
-            use_groq=use_groq,
-            ollama_model=ollama_model,
-        )
-        if j.get("judge_error"):
-            continue
-        js = float(j.get("overall_score", 3))
-        rs = float(g.get("gold_reply_quality", 3))
-        judge_scores.append(js)
-        ref_scores.append(rs)
-        rows.append({
-            "customer_message": g["customer_message"][:160],
-            "brand_reply": g["brand_reply"][:160],
-            "judge_score": js,
-            "reference_score": rs,
-            "delta": round(js - rs, 2),
-        })
-    print(f"  Calibrated judge on {len(rows)} examples.        ")
-
-    agreement = compute_judge_human_agreement(judge_scores, ref_scores)
-    agreement["label_source"] = (
-        "programmatic (scripts/label_golden_set.py:score_reply_quality) — "
-        "NOT human ratings; see docstring"
-    )
-    agreement["examples"] = rows[:20]
-    return agreement

@@ -1,0 +1,494 @@
+{
+  "benchmark": "headline",
+  "labels_are_provisional": true,
+  "summary": {
+    "n_evaluated": 40,
+    "n_examples_with_failure": 26,
+    "by_severity": {
+      "high": 5,
+      "medium": 21
+    },
+    "by_reason": {
+      "escalation_false_negative": 5,
+      "intent_misclassification": 21,
+      "escalation_false_positive": 7
+    }
+  },
+  "failures": [
+    {
+      "example_id": "185",
+      "difficulty": "edge_case",
+      "customer_message": "So now my alarm wont ring on #ios11 with my iphone 7 plus wtf #apple @115858 @AppleSupport",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "software_update_os",
+      "gold_escalation": true,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer We're sorry your alarm isn't working. Have you tried restarting your iPhone? If the issue persists, please DM us your device details so we can help further. ^AB",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_negative",
+        "intent_misclassification"
+      ],
+      "severity": "high",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "68",
+      "difficulty": "hard_short",
+      "customer_message": "@AppleSupport Thanks homies",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": true,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer Sorry to hear that! For account-specific issues, please DM us directly so we can assist you further. We're here to help.",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_negative",
+        "intent_misclassification"
+      ],
+      "severity": "high",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "176",
+      "difficulty": "hard_short",
+      "customer_message": "@AppleSupport ^",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "general_inquiry_features",
+      "gold_escalation": true,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer We\u2019re here to help! Please DM us with details about your device and the feature you\u2019d like to learn about. ^AB",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_negative"
+      ],
+      "severity": "high",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "71",
+      "difficulty": "hard_short",
+      "customer_message": "@AppleSupport 11.0.2",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "general_inquiry_features",
+      "gold_escalation": true,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer Sorry to hear you're experiencing issues with your Mac! Can you please DM us so we can look into this further and provide a personalized solution? [link to DM]",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_negative"
+      ],
+      "severity": "high",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "72",
+      "difficulty": "hard_short",
+      "customer_message": "@AppleSupport 10.3.3",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "general_inquiry_features",
+      "gold_escalation": true,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer Sorry to hear that! Would love to help. DM us for account-specific details so we can assist with your issue. We'll get in touch as soon as possible! #AppleSupport",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_negative"
+      ],
+      "severity": "high",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "111",
+      "difficulty": "hard_complex",
+      "customer_message": "So, my 17\" Early 2011 @115858 MBP died today. The dreaded graphics card failure. This is the SECOND MacBook Pro that dies on me due to graphics card failure (the first one a 2008 MBP 17\").\n\nI cannot un-recommend enough the lack of quality in these machines.",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": false,
+      "predicted_escalation": true,
+      "escalation_reason_given": "Customer expresses extreme dissatisfaction and mentions a recurring hardware failure (second device), indicating a need for human intervention to address potential warranty, replacement, or compensation options.",
+      "generated_reply": "@115858 We\u2019re sorry to hear about the frustration with your Macs. We\u2019d like to look into this further. Please DM us your Apple ID email and a phone number so our team can assist you. ^JH",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_positive",
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "137",
+      "difficulty": "hard_complex",
+      "customer_message": "@AppleSupport what does the message mean? Today I noticed that my account was already disabled? https://t.co/o17QLruGII",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "apple_id_and_icloud",
+      "gold_escalation": false,
+      "predicted_escalation": true,
+      "escalation_reason_given": "The customer reports their Apple ID is disabled, which is a critical account-specific issue requiring specialized verification and manual intervention to restore access, falling outside standard FAQ scope.",
+      "generated_reply": "@customer We\u2019re sorry to hear your Apple ID is disabled. This usually happens for security reasons. Please send us a DM with the email address associated with your account so we can help you restore access. ^JS",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_positive",
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "140",
+      "difficulty": "hard_complex",
+      "customer_message": "What did y\u2019all do to our phones @AppleSupport ???? Everything is broken!",
+      "gold_intent": "hardware_and_audio",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": false,
+      "predicted_escalation": true,
+      "escalation_reason_given": "The message exhibits extreme dissatisfaction and emotional distress with no specific technical details provided, indicating a need for human intervention to de-escalate and investigate.",
+      "generated_reply": "@customer We're sorry to hear that. Please DM us your device model and iOS version so we can help troubleshoot. ^JL",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_positive",
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "161",
+      "difficulty": "hard_complex",
+      "customer_message": "@AppleSupport who is the right person? 3 different people to upgrademy iphone? Terrible experience today. People extremely rude.",
+      "gold_intent": "software_update_os",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": false,
+      "predicted_escalation": true,
+      "escalation_reason_given": "Customer reports multiple failed attempts to resolve an issue and explicitly mentions rude behavior from staff, indicating high emotional distress and a need for human intervention to de-escalate and resolve the complaint.",
+      "generated_reply": "@customer We\u2019re sorry to hear about your frustrating experience. Please DM us with more details so we can look into this for you. ^JL",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_positive",
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "9",
+      "difficulty": "standard",
+      "customer_message": "@AppleSupport hi it still didn\u2019t help. it said cannot be back up due to storage full but i just upgraded. you can refer the picture https://t.co/EdpqWdpnva",
+      "gold_intent": "software_update_os",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": false,
+      "predicted_escalation": true,
+      "escalation_reason_given": "high frustration and unclear resolution after previous attempt",
+      "generated_reply": "@customer Sorry to hear that, we're here to help! Can you please DM us with more details about your issue so we can assist you further? [link to DM]",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_positive",
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "102",
+      "difficulty": "hard_complex",
+      "customer_message": "Hi @AppleSupport how do I check the battery health for my iPhone 6s Plus? Can I do it online or over the phone?",
+      "gold_intent": "battery_and_charging",
+      "predicted_intent": "general_inquiry_features",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer You can check Battery Health on your iPhone 6s Plus by going to Settings > Battery > Battery Health. Let us know if you need further assistance in a DM. ^AK",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "114",
+      "difficulty": "hard_complex",
+      "customer_message": "@AppleSupport Which will be 3 weeks time so no other way to update unless through WiFi???",
+      "gold_intent": "connectivity_and_network",
+      "predicted_intent": "software_update_os",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer We\u2019re sorry for the delay. You can update via Wi-Fi, but for faster speeds, connect to a computer with the latest iTunes/Finder. DM us if you need help setting this up. ^JS",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "126",
+      "difficulty": "standard",
+      "customer_message": "@115858 my wife is ticked that her iPhone SE is freezing since the ios11 update.  No amount of restarting fixes it!! #youGotProblems",
+      "gold_intent": "software_update_os",
+      "predicted_intent": "device_performance_freeze",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@115858 We're sorry to hear your wife is experiencing freezes. Please DM us using the link below so we can look into this further. https://t.co/GDrqU22YpT",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "128",
+      "difficulty": "edge_case",
+      "customer_message": "My phone cut off three times today with a full battery @115858 fuckin up! \ud83e\udd26\ud83c\udffe\u200d\u2640\ufe0f\ud83e\udd26\ud83c\udffe\u200d\u2640\ufe0f\ud83e\udd26\ud83c\udffe\u200d\u2640\ufe0f",
+      "gold_intent": "battery_and_charging",
+      "predicted_intent": "device_performance_freeze",
+      "gold_escalation": true,
+      "predicted_escalation": true,
+      "escalation_reason_given": "Message contains strong profanity \u2014 customer is very frustrated",
+      "generated_reply": "@115858 We're sorry to hear about the interruptions. Please check Settings > General > About to see which iOS version you're running, and let us know if it\u2019s the latest.",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "136",
+      "difficulty": "standard",
+      "customer_message": "@AppleSupport I have lost everything on my phone. back to square 1. we pay through the nose. let us speak to humans, please. everything gone.",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": true,
+      "predicted_escalation": true,
+      "escalation_reason_given": "Customer explicitly requests human interaction and reports total data loss, indicating high emotional distress and a critical issue requiring specialized recovery assistance.",
+      "generated_reply": "@customer We're sorry to hear about the data loss. We understand your frustration. Please DM us your country and Apple ID email so we can connect you with a specialist for assistance. https://t.co/GDrqU22YpT",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "139",
+      "difficulty": "standard",
+      "customer_message": "@AppleSupport and Battery life is too short. Sometimes when I click on the application the screen goes dark and goes back to the main menu.",
+      "gold_intent": "battery_and_charging",
+      "predicted_intent": "battery_and_charging",
+      "gold_escalation": false,
+      "predicted_escalation": true,
+      "escalation_reason_given": "The customer reports a critical hardware/software failure (screen going dark and rebooting to main menu) alongside battery issues. This indicates a potential device malfunction or OS crash that cannot be resolved via standard FAQ responses and requires specialized technical diagnosis.",
+      "generated_reply": "@customer We're sorry to hear about the battery and screen issues. To help troubleshoot, please DM us your iPhone model and iOS version. We'll get to the bottom of this for you. ^AB",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_positive"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "14",
+      "difficulty": "edge_case",
+      "customer_message": "Do the fingerprint readers on iphones just all of a sudden stop reading right? Already had a defective antenna, now home button is being buggy in under a year of having it..... I love apple but holy shit I'm getting fed up. @AppleSupport",
+      "gold_intent": "complaint_and_frustration",
+      "predicted_intent": "hardware_and_audio",
+      "gold_escalation": true,
+      "predicted_escalation": true,
+      "escalation_reason_given": "Message contains strong profanity \u2014 customer is very frustrated",
+      "generated_reply": "@customer We're sorry to hear about the frustration with your iPhone's Home button. We'd love to help troubleshoot this for you. Please join us in DM to share more details: https://t.co/GDrqU22YpT ^AB",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "147",
+      "difficulty": "hard_complex",
+      "customer_message": "My phone just got extremely hot out of nowhere. Soooo @AppleSupport what are they putting in these phones sis?? \ud83e\udd14",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "battery_and_charging",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer We're sorry to hear that. Please stop using the device and let it cool down. Try these steps: https://t.co/placeholder If it persists, DM us for further assistance. ^AB",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "177",
+      "difficulty": "hard_short",
+      "customer_message": "Worst experience EVER @115858",
+      "gold_intent": "complaint_and_frustration",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": false,
+      "predicted_escalation": true,
+      "escalation_reason_given": "Message contains severe_frustration indicator: 'worst experience'",
+      "generated_reply": "@customer We're sorry to hear that. We'd love to learn more about your experience. Please send us a DM with the details. https://t.co/GDrqU22YpT",
+      "judge_overall": null,
+      "failure_reasons": [
+        "escalation_false_positive"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "192",
+      "difficulty": "hard_complex",
+      "customer_message": "@AppleSupport Is it a common glitch that apps start to update but absolutely will not progress until the phone is shut down completeley and restarted?  Bit frustrating to have greyed out unusable apps now all the time.",
+      "gold_intent": "software_update_os",
+      "predicted_intent": "device_performance_freeze",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer We understand how frustrating it is when apps freeze during updates. Please DM us your device model and iOS version so we can investigate further. ^AB",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "199",
+      "difficulty": "standard",
+      "customer_message": "@AppleSupport got a Apple Watch yesterday, had receipt emailed to me, but it never showed up yet. Is it normal for it to come delayed?",
+      "gold_intent": "billing_and_subscriptions",
+      "predicted_intent": "store_orders_and_repairs",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer Sorry about the delay. Receipts can take up to 24 hours to arrive. If you don't see it soon, please DM us your order number so we can assist you further. ^AB",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "2",
+      "difficulty": "hard_complex",
+      "customer_message": "@115858 je fais comment si le truc tombe tout seul ? Je charge mon IPhone avec de la bonne volont\u00e9 ? 12 % pour la nuit, allez salut. https://t.co/6gvXtHeB38",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "battery_and_charging",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@115858 We offer support via Twitter in English. Contact us for help in your preferred language here: https://t.co/IBIY3vMgPj",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "3",
+      "difficulty": "standard",
+      "customer_message": "@AppleSupport I did that. It kept restarting itself. So I pressed ctrl, Cmd &amp; R and pressed reinstall os. And the whole process has started again. Was this correct?",
+      "gold_intent": "device_performance_freeze",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer Sorry to hear that the issue persists. Pressing Ctrl+Cmd+R & reinstalling OS is a common troubleshooting step, but it's possible there's an underlying issue. Let's take a closer look. DM us for personalized support.",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "42",
+      "difficulty": "hard_complex",
+      "customer_message": "@AppleSupport @124871 quick question: may i get the student discount at the apple store? if so, do i show my school id? also if o order online may i get it shipped to the store and pick it up the same day as ordering? I've never done anything like this before...",
+      "gold_intent": "store_orders_and_repairs",
+      "predicted_intent": "general_inquiry_features",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer Hi! To get the student discount, please show your valid school ID in-store or provide it via DM when ordering online. For store pickup, you can request this option during checkout. Send us a DM for more details & we'll help with your order! https://t.co/MzZk2e9s8P",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "50",
+      "difficulty": "standard",
+      "customer_message": "So my I\ufe0f works on twitter but nothing else? @AppleSupport a little help please. My clients think I\ufe0f can\u2019t spell. #bringbackthei",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer Sorry to hear your iWork is affected on Twitter! DM us with more details about the issue, including any error messages you're seeing, so we can help resolve it for you ASAP. #AppleSupport",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "77",
+      "difficulty": "standard",
+      "customer_message": "Ios g\u00fcncellemesinden sonra s\u00fcrekli telefon titremeye ba\u015flad\u0131 men\u00fcde bi\u015feye bakarken bunu nas\u0131 kapatabilirim @AppleSupport",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer Oh no, sorry to hear that your iPhone is shaking after the latest iOS update! Can you DM us with more details about your issue & which device you're using? We'll do our best to help you resolve it. #AppleSupport",
+      "judge_overall": null,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    }
+  ]
+}

@@ -1,0 +1,260 @@
+{
+  "intent_classification": {
+    "accuracy": 0.475,
+    "macro_f1": 0.3108,
+    "weighted_f1": 0.4884,
+    "per_class": {
+      "apple_id_and_icloud": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1-score": 0.6667,
+        "support": 1.0
+      },
+      "battery_and_charging": {
+        "precision": 0.3333,
+        "recall": 0.3333,
+        "f1-score": 0.3333,
+        "support": 3.0
+      },
+      "billing_and_subscriptions": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 1.0
+      },
+      "complaint_and_frustration": {
+        "precision": 0.3077,
+        "recall": 0.8,
+        "f1-score": 0.4444,
+        "support": 5.0
+      },
+      "connectivity_and_network": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 1.0
+      },
+      "device_performance_freeze": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 1.0
+      },
+      "general_inquiry_features": {
+        "precision": 0.8,
+        "recall": 0.4706,
+        "f1-score": 0.5926,
+        "support": 17.0
+      },
+      "hardware_and_audio": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "f1-score": 0.5,
+        "support": 2.0
+      },
+      "software_update_os": {
+        "precision": 0.6667,
+        "recall": 0.5,
+        "f1-score": 0.5714,
+        "support": 8.0
+      },
+      "store_orders_and_repairs": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 1.0
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "apple_id_and_icloud",
+        "battery_and_charging",
+        "billing_and_subscriptions",
+        "complaint_and_frustration",
+        "connectivity_and_network",
+        "device_performance_freeze",
+        "general_inquiry_features",
+        "hardware_and_audio",
+        "software_update_os",
+        "store_orders_and_repairs"
+      ],
+      "matrix": [
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          4,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          2,
+          0,
+          5,
+          0,
+          0,
+          8,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          4,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "off_taxonomy_predictions": [],
+    "n_off_taxonomy": 0,
+    "accuracy_ci95": {
+      "point": 0.475,
+      "lo": 0.325,
+      "hi": 0.625,
+      "n": 40
+    }
+  },
+  "escalation": {
+    "accuracy": 0.7,
+    "precision": 0.5,
+    "recall": 0.5833,
+    "f1": 0.5385,
+    "confusion": {
+      "tp": 7,
+      "fp": 7,
+      "fn": 5,
+      "tn": 21
+    },
+    "total_escalated": 14,
+    "total_should_escalate": 12,
+    "accuracy_ci95": {
+      "point": 0.7,
+      "lo": 0.55,
+      "hi": 0.85,
+      "n": 40
+    }
+  },
+  "rouge_scores": {
+    "rouge1": 0.2724,
+    "rouge2": 0.0916,
+    "rougeL": 0.2047
+  },
+  "reply_stats": {
+    "avg_length_chars": 171.9,
+    "avg_length_words": 29.6,
+    "min_length": 115,
+    "max_length": 274,
+    "empty_replies": 0
+  },
+  "performance": {
+    "avg_time_seconds": 21.24,
+    "total_time_seconds": 849.43,
+    "samples_evaluated": 40
+  },
+  "wall_time_seconds": 0.02,
+  "reply_validation": {
+    "n_replies": 40,
+    "n_replies_with_violation": 0,
+    "violation_rate": 0.0,
+    "counts_by_type": {},
+    "examples_by_type": {},
+    "max_reply_length": 274,
+    "n_over_char_limit": 0
+  }
+}
