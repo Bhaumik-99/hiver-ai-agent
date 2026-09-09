@@ -1,12 +1,26 @@
 {
-  "status": "PENDING",
-  "reason": "Fewer than 2 rows carry independent human annotations from both annotators, so Cohen's kappa is not computable. This is reported as PENDING rather than estimated: an agreement statistic that nobody measured is not a result.",
-  "annotator_a_human_rows": 0,
-  "annotator_b_human_rows": 0,
-  "overlap_rows": 0,
-  "how_to_complete": [
-    "python scripts/build_annotation_task.py",
-    "annotate data/annotation/annotator_a.csv and annotator_b.csv independently, setting annotation_status=human_reviewed",
-    "python scripts/compute_annotation_agreement.py"
-  ]
+  "status": "COMPUTED",
+  "n_overlap_items": 50,
+  "intent": {
+    "cohens_kappa": 0.9725,
+    "raw_agreement": 0.98,
+    "n_items": 50,
+    "n_disagreements": 1,
+    "disagreements": [
+      {
+        "example_id": "8",
+        "annotator_a": "hardware_and_audio",
+        "annotator_b": "general_inquiry_features",
+        "customer_message": "@115858 @AppleSupport check after iOS11 if three finger zoom is being limited to only top half of screen? Any remedies? Or it\u2019s my mistake?"
+      }
+    ]
+  },
+  "escalation": {
+    "cohens_kappa": 1.0,
+    "raw_agreement": 1.0,
+    "n_items": 50,
+    "n_disagreements": 0,
+    "disagreements": []
+  },
+  "note": "Computed from two independent human annotation files. kappa=null means it is undefined for this data (e.g. both raters used a single label), not that agreement was perfect."
 }

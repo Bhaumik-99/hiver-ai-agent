@@ -1,0 +1,161 @@
+ID 1 [main]:
+  CUSTOMER: @AppleSupport 7 plus. Version 11.0
+  REPLY:    @customer Thanks for reaching out. Let’s look into this further via DM. Please share your country and any update steps you’ve tried. https://t.co/GDrqU22YpT ^AS
+
+ID 2 [main]:
+  CUSTOMER: Damn you @115858 and this stupid update making me look stupid in a moment of crisis I️ hate this I️ am triggered
+  REPLY:    @customer Here’s what you can do to work around the issue until it’s fixed in a future software update: https://t.co/xXaXeeSRt9
+
+ID 3 [main]:
+  CUSTOMER: @AppleSupport iOS 11
+  REPLY:    @AppleSupport Which device are you using? If you haven’t already, try restarting it and then check for updates: https://t.co/xOrdgHyyiA. Let us know how it goes! ^AS
+
+ID 4 [main]:
+  CUSTOMER: @AppleSupport After the update
+  REPLY:    @customer Thanks for the info. Which iOS version do you have installed? If you need help troubleshooting, DM us so we can assist you further. https://t.co/GDrqU22YpT ^XX
+
+ID 5 [main]:
+  CUSTOMER: @AppleSupport Gracias, @AppleSupport.
+  REPLY:    @customer Thanks for reaching out! If you have any questions or need help with your Apple product, feel free to DM us for personalized support. ^AS
+
+ID 6 [main]:
+  CUSTOMER: @115858 can you please fix this battery issue with iOS 11 because this i just watched my phone go from 66% to 49% in he span of 12 mins
+  REPLY:    @115858 We’re sorry to hear about the battery drop. Let’s look into it together. Please DM us so we can gather more details and find a solution. https://t.co/GDrqU22YpT ^XX
+
+ID 7 [main]:
+  CUSTOMER: Also fix the thing where i is a block with a question mark. Thanks @115858
+  REPLY:    @customer There’s a recent update that fixes the “i” block issue. Make sure you’re on the latest iOS version and back up your device first. If it still appears, DM us for a quick fix. ^AS
+
+ID 8 [main]:
+  CUSTOMER: @AppleSupport My name is razz chakroborty (+91 705308855) i was using a apple i phone 6S. Yesterday 5.15 to 5.30 pm i lost my Phone so need your Support to find my phone my apple id is __email__ emi id is __credit_card__.i done the FIR. Plz help ME.
+  REPLY:    @razzchakroborty We’re sorry to hear about your lost iPhone. Please DM us with your Apple ID and the details of the FIR so we can guide you through Find My iPhone and any further steps. https://t.co/GDrqU22Yp^AS
+
+ID 9 [main]:
+  CUSTOMER: @AppleSupport 11.1.1
+  REPLY:    @customer Thanks for the info! Let’s dive deeper. Please DM us so we can help you further. https://t.co/GDrqU22YpT ^XX
+
+ID 10 [main]:
+  CUSTOMER: @AppleSupport Next chance I get to backup my phone using #iTunes I will do just that. Still, it’s a touch screen with no buttons. Very disconcerting that it would suddenly become almost completely without response.
+  REPLY:    @customer We’re sorry you’re experiencing touch‑screen issues. Try a hard reset: hold the Side button + Volume‑down until the Apple logo appears. If that doesn’t help, check for iOS updates in Settings > General > Software Update. Need more help? DM us. https://t.co/GDrqU22YpT
+
+ID 11 [main]:
+  CUSTOMER: As much as I love @115858 I’m about to switch... my @118721 account has been hacked for MONTHS!! I’m so pissed. So much money stolen.
+  REPLY:    @customer We’re really sorry to hear about the security breach. Please DM us your Apple ID and the last time you logged in so we can start a recovery process. We’ll help you secure your account and recover any lost funds. ^AS
+
+ID 12 [main]:
+  CUSTOMER: Why the hell is IPhone changing “I️” to a question mark?? 
+@115858 get your sh*t together this is annoying
+  REPLY:    @customer We’re sorry for the glitch. Please DM us your iPhone model and iOS version so we can help resolve the “I” → “?” issue. In the meantime, try updating to the latest iOS if you haven’t already. https://t.co/GDrqU22YpT ^AS
+
+ID 13 [main]:
+  CUSTOMER: @AppleSupport Which will be 3 weeks time so no other way to update unless through WiFi???
+  REPLY:    @customer Thanks for reaching out. If you’re on a cellular plan, you can still download the update over cellular—just enable “Allow Cellular Data” for Software Update in Settings > General > Software Update. For more help, DM us. ^AA
+
+ID 14 [main]:
+  CUSTOMER: @AppleSupport 11.0.3
+  REPLY:    @customer Thanks for the info! Let’s get this sorted—please DM us so we can help you further. https://t.co/GDrqU22YpT ^XX
+
+ID 15 [main]:
+  CUSTOMER: @115858 fix this 🤢 https://t.co/6JHlM0uODC
+  REPLY:    @115858 We’re on it! Here’s a quick fix you can try right now: https://t.co/xXaXeeSRt9. If that doesn’t solve it, DM us with a screenshot and we’ll dive deeper. ^AS
+
+ID 16 [main]:
+  CUSTOMER: Trying to message her I love her and that I want her to call me. I’m worried she may hurt herself. WTF, @115858 https://t.co/H7yR5v60BO
+  REPLY:    @customer We’re sorry you’re feeling this way. If you’re concerned about someone’s safety, please contact local emergency services or a trusted professional right away. For Apple‑related help, DM us with details. ^AS
+
+ID 17 [main]:
+  CUSTOMER: @515539 @115858 needs to figure this shit out cause it’s pissing me off
+  REPLY:    @515539 Hi! I’m sorry you’re frustrated. Let’s sort this out together—please DM me so I can help you troubleshoot right away. We’re here to get you back on track!
+
+ID 18 [main]:
+  CUSTOMER: @AppleSupport what the fuck is up with this&gt; I️
+  REPLY:    @customer Thanks for reaching out. Let’s get this sorted—please DM us with more details so we can help you quickly. ^XX
+
+ID 19 [main]:
+  CUSTOMER: @AppleSupport 11.0.3
+  REPLY:    @AppleSupport 11.0.3 Thanks for the info! Let’s look into this together. Please DM us so we can help you further. https://t.co/GDrqU22YpT ^XX
+
+ID 20 [main]:
+  CUSTOMER: My Mac restarted and deleted the 8 pages of homework I was working on so I'm just gonna make a plan to systematically destroy @115858 now
+  REPLY:    @customer We’re sorry to hear about the loss. First, check Time Machine or any backup you may have. If not, try “Reopen Recent” or “Undo” in the app you were using. If you need more help, DM us so we can assist privately. ^AS
+
+ID 21 [main]:
+  CUSTOMER: @115858 how do i reverse my update cah this is hella shit
+  REPLY:    @115858 Hi! If you want to undo the latest update, you can restore your device from a backup made before the update. Start by going to Settings > General > Transfer or Reset iPhone > Erase All Content & Settings, then set up from that backup. If you need help, DM us.
+
+ID 22 [main]:
+  CUSTOMER: @AppleSupport iOS 10.3.1
+  REPLY:    @customer Let’s get your device up to date. Go to Settings > General > Software Update. If it still shows 10.3.1, try restarting your iPhone, then check again. For a deeper look, DM us: https://t.co/GDrqU22YpT ^AA
+
+ID 23 [main]:
+  CUSTOMER: @AppleSupport Why is this suddenly appearing in my text box??? https://t.co/yWKdUkkSQw
+  REPLY:    @customer We’re sorry for the inconvenience. Which iPhone model and iOS version are you using? This will help us troubleshoot the unexpected text‑box icon. Feel free to DM us for a quick fix. ^AS
+
+ID 24 [main]:
+  CUSTOMER: @AppleSupport Hm? 🤔 https://t.co/jM9oqsqgU9
+  REPLY:    @customer Thanks for reaching out. We’d love to help. Please DM us so we can look into this together. https://t.co/GDrqU22YpT ^XX
+
+ID 25 [main]:
+  CUSTOMER: @AppleSupport Thank you!!
+  REPLY:    @customer You're welcome! ^AS
+
+ID 26 [main]:
+  CUSTOMER: @AppleSupport Yes I do
+  REPLY:    @customer Thanks for confirming! Please DM us your device model and iOS version so we can help you further. ^XX
+
+ID 27 [main]:
+  CUSTOMER: @AppleSupport FIX MY FUCKING I BUTTON I️ I️ I️
+  REPLY:    @customer We’re sorry you’re experiencing this. Please update to the latest iOS version (Settings → General → Software Update). If the issue persists, back up your device first: https://t.co/4f8hwT5to6. DM us for further help. ^AS
+
+ID 28 [main]:
+  CUSTOMER: Every time I try to verify my @115948 student membership it wont let me because I haven’t gotten an email. Suggestions?? @AppleSupport
+  REPLY:    @customer We’re sorry you’re not receiving the verification email. First, check your spam/junk folder and any filters that might block Apple. If it’s still missing, please DM us so we can verify your account and resend the link. ^AS
+
+ID 29 [main]:
+  CUSTOMER: @115858 i’m really fuckin tired of the games, fix this shit NOW
+  REPLY:    @115858 We’re sorry you’re having trouble. Please DM us so we can help you resolve this issue. ^AA
+
+ID 30 [main]:
+  CUSTOMER: @115858 @AppleSupport since updating to 11.0.3 I have needed to charge my phone twice a day. Is this related ? Any help or options to fix?
+  REPLY:    @115858 We’re sorry to hear that. Battery drain after an update can happen. Please DM us your iPhone model and iOS version so we can check for known issues and give you a fix. https://t.co/GDrqU22YpT ^AA
+
+ID 31 [main]:
+  CUSTOMER: @115858 NEVER IN MY ENTIRE GODDAMN LIFE HAVE I️ BEEN TRYING TO SAY A ? INSTEAD OF “I️” PLEASE GET YOUR SHIT TOGETHER I️ CANNOT LIVE LIKE THIS https://t.co/0XPUx2S7lp
+  REPLY:    @115858 It sounds like a keyboard layout issue. Try resetting the keyboard: Settings → General → Keyboard → Reset Keyboard Dictionary. If that doesn’t help, let’s dig deeper—DM us your iOS version and any recent changes. We’re here to help!
+
+ID 32 [main]:
+  CUSTOMER: @115858 this new update is fucking killing me! When’s my shit gonna work?
+  REPLY:    @115858 We’re sorry to hear this update is causing trouble. DM us the iPhone model, iOS version, and what’s not working so we can help you get it resolved. https://t.co/GDrqU22YpT ^AS
+
+ID 33 [main]:
+  CUSTOMER: @AppleSupport Multiple
+  REPLY:    @customer Thanks for reaching out. Could you share the iOS version and any recent changes? Let’s troubleshoot together—DM us here: https://t.co/GDrqU22YpT ^AS
+
+ID 34 [main]:
+  CUSTOMER: Hey @AppleSupport I’m sending you screen shots of every screwed up autocorrect. It’s been terrible since the last update.
+  REPLY:    @customer We’re sorry about the autocorrect glitches. Let’s get this sorted. Please DM us with the screenshots and the iOS version you’re on so we can investigate further. https://t.co/GDrqU22YpT ^AS
+
+ID 35 [main]:
+  CUSTOMER: @AppleSupport 10.3.3
+  REPLY:    @customer 10.3.3? Check your iOS version in Settings > General > About. If it’s not the latest, go to Settings > General > Software Update to install the newest release. Need more help? DM us for a quick walkthrough. ^AS
+
+ID 36 [main]:
+  CUSTOMER: @AppleSupport @115858 See, it did it again!
+  REPLY:    @115858 We’re sorry to hear this happened again. Could you let us know what’s occurring? For a quick resolution, DM us so we can look into it personally. ^AS
+
+ID 37 [main]:
+  CUSTOMER: @AppleSupport is this happening to anyone? Like the notification it’s out of setting https://t.co/J0Qbdc7Mz1
+  REPLY:    @customer Thanks for reaching out. We’re aware of the notification issue. In the meantime, try this workaround: https://t.co/xXaXeeSRt9. If it doesn’t help, DM us for a more personalized fix. ^XX
+
+ID 38 [main]:
+  CUSTOMER: @115858  @AppleSupport music and podcast “skip” around like a CD, then distorts and clears up in few seconds, only happens after iOS 11
+  REPLY:    @115858 It sounds like a playback glitch that can happen after an iOS update. Try restarting your device, then delete and re‑add the affected songs. If the issue persists, let us know via DM so we can dig deeper. ^XX
+
+ID 39 [main]:
+  CUSTOMER: The IOS has fully fucked up my phone. Cheers @AppleSupport
+  REPLY:    @customer We’re sorry to hear iOS isn’t working right. Can you share the specific issues you’re experiencing? Feel free to DM us for a quick resolution. https://t.co/GDrqU22YpT ^AS
+
+ID 40 [main]:
+  CUSTOMER: Do the fingerprint readers on iphones just all of a sudden stop reading right? Already had a defective antenna, now home button is being buggy in under a year of having it..... I love apple but holy shit I'm getting fed up. @AppleSupport
+  REPLY:    @customer We’re sorry to hear about the fingerprint reader and Home button issues. Let’s get this sorted—please DM us with your device details so we can help you quickly. https://t.co/GDrqU22YpT ^AS
+
