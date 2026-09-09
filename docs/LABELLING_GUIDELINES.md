@@ -92,10 +92,13 @@ Evaluating the historical human Apple Support response:
 
 ---
 
-## 5. Annotation Audit & Inter-Annotator Agreement
-To measure labelling reliability, a dual-annotation protocol was executed on a 50-example validation subset:
-- Annotator A: Primary systematic rule-based and expert review.
-- Annotator B: Independent secondary verification.
-- **Cohen's Kappa ($\kappa$) for Intent Classification**: **0.87** (Strong agreement).
-- **Cohen's Kappa ($\kappa$) for Escalation Decision**: **0.91** (Near-perfect agreement).
-- **Disagreement Resolution**: Traced directly to ambiguity in edge-case rant tweets; resolved by standardizing the priority order of technical intent vs complaint.
+## 5. Annotation Protocol & Inter-Annotator Agreement Framework
+To guarantee ground-truth labelling reliability without fabrication, an independent dual-annotation protocol is established on a 50-example validation overlap subset (`data/annotation/annotator_a.csv` and `data/annotation/annotator_b.csv`):
+- **Independent Dual Review**: Two human annotators independently review the sampled messages and assign labels without consulting each other's work.
+- **Target Agreement Criteria**:
+  - Target Cohen's Kappa ($\kappa$) for Intent Classification: $\kappa \ge 0.80$ (Substantial to near-perfect agreement).
+  - Target Cohen's Kappa ($\kappa$) for Escalation Decision: $\kappa \ge 0.85$ (Near-perfect agreement).
+- **Verification Tooling**: Inter-annotator agreement is evaluated via `python scripts/compute_annotation_agreement.py` and recorded in `results/annotation_agreement.json`.
+- **Disagreement Adjudication**: Conflicting annotations are adjudicated using `python scripts/finalize_golden_set.py` to produce the finalized ground-truth set `data/golden_set_final.csv`.
+- **Current Status**: The annotation task files are staged under `data/annotation/` (`pending_review`). Benchmark metrics remain flagged as **PROVISIONAL** until human review is completed.
+

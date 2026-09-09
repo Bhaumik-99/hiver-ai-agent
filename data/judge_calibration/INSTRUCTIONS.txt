@@ -1,0 +1,28 @@
+LLM-JUDGE HUMAN CALIBRATION TASK
+=================================
+
+You are scoring AI-generated customer-support replies so we can measure whether
+our LLM judge agrees with a human. Fill the human_* columns with integers 1-5.
+
+Score the REPLY given the CUSTOMER MESSAGE. You are not comparing it to any
+reference answer, and you should not try to guess what the model scored.
+
+  relevance     1 off-topic  ... 5 directly addresses this specific problem
+  groundedness  1 fabricated/contradicts brand practice ... 5 matches how this
+                brand actually replies (concise, empathetic, DM for private data)
+  helpfulness   1 no next step ... 5 complete actionable resolution guidance
+  tone          1 rude/dismissive ... 5 empathetic, professional, on-brand
+  completeness  1 ignores most of the query ... 5 covers every aspect
+
+  human_overall the mean of your five scores, or your own holistic 1-5 if you
+                prefer - state which convention you used in the notes file.
+
+IMPORTANT
+- Do NOT look at results/*_judgments_raw.json while scoring. If you anchor on
+  the judge's scores, the agreement number measures nothing.
+- The `system` column is included only for bookkeeping. Try to ignore it; do not
+  score a reply higher because it came from the main agent.
+- Score every row. Partial rows are dropped from the calculation.
+
+When finished, save as data/judge_calibration/judge_calibration_human.csv and run:
+    python scripts/compute_judge_calibration.py

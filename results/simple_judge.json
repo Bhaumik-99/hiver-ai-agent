@@ -1,41 +1,43 @@
 {
   "relevance": {
-    "mean": 3.1,
-    "std": 1.14,
+    "mean": 2.0,
+    "std": 0.92,
     "min": 1,
     "max": 5,
-    "n": 10
+    "n": 40
   },
   "groundedness": {
-    "mean": 5.0,
-    "std": 0.0,
-    "min": 5,
+    "mean": 2.95,
+    "std": 1.07,
+    "min": 1,
     "max": 5,
-    "n": 10
+    "n": 40
   },
   "helpfulness": {
-    "mean": 3.1,
-    "std": 1.22,
+    "mean": 1.88,
+    "std": 0.81,
     "min": 1,
-    "max": 5,
-    "n": 10
+    "max": 4,
+    "n": 40
   },
   "tone": {
-    "mean": 4.5,
-    "std": 0.92,
+    "mean": 3.17,
+    "std": 0.95,
     "min": 2,
     "max": 5,
-    "n": 10
+    "n": 40
   },
   "completeness": {
-    "mean": 2.6,
-    "std": 1.28,
+    "mean": 1.82,
+    "std": 0.83,
     "min": 1,
     "max": 5,
-    "n": 10
+    "n": 40
   },
   "overall": {
-    "mean": 3.66,
-    "std": 0.82
-  }
+    "mean": 2.36,
+    "std": 0.83
+  },
+  "n_judged": 40,
+  "n_judge_errors": 0
 }

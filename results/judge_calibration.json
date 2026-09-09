@@ -1,0 +1,12 @@
+{
+  "status": "PENDING",
+  "requirement": "The assignment requires evidence of how well the LLM judge agrees with a HUMAN.",
+  "reason": "no human ratings file at data/judge_calibration/judge_calibration_human.csv",
+  "how_to_complete": [
+    "python scripts/run_evaluation.py --benchmark headline",
+    "python scripts/build_judge_calibration_task.py",
+    "score every row of data/judge_calibration/judge_calibration_task.csv and save it as judge_calibration_human.csv",
+    "python scripts/compute_judge_calibration.py"
+  ],
+  "task_file_exists": true
+}

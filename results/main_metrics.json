@@ -247,7 +247,7 @@
     "total_time_seconds": 849.43,
     "samples_evaluated": 40
   },
-  "wall_time_seconds": 0.02,
+  "wall_time_seconds": 0.0,
   "reply_validation": {
     "n_replies": 40,
     "n_replies_with_violation": 0,

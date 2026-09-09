@@ -232,21 +232,21 @@ def render(benchmark: str) -> str:
     return "\n".join(L)
 
 
-def inject(doc_path: str, benchmark: str, block: str) -> bool:
+def inject(doc_path: str, benchmark: str, block: str) -> str:
     begin, end = BEGIN.format(benchmark=benchmark), END.format(benchmark=benchmark)
     if not os.path.exists(doc_path):
-        return False
+        return "missing"
     with open(doc_path, encoding="utf-8") as f:
         text = f.read()
     if begin not in text or end not in text:
-        return False
+        return "missing_marker"
     new = re.sub(re.escape(begin) + r".*?" + re.escape(end),
                  f"{begin}\n{block}\n{end}", text, flags=re.DOTALL)
     if new != text:
         with open(doc_path, "w", encoding="utf-8") as f:
             f.write(new)
-        return True
-    return False
+        return "updated"
+    return "up_to_date"
 
 
 def main():
@@ -278,8 +278,11 @@ def main():
         return 0
 
     for t in targets:
-        if inject(t, args.benchmark, block):
+        status = inject(t, args.benchmark, block)
+        if status == "updated":
             print(f"Updated {os.path.basename(t)}")
+        elif status == "up_to_date":
+            print(f"{os.path.basename(t)} is already up to date")
         else:
             print(f"No marker block for '{args.benchmark}' in {os.path.basename(t)} "
                   f"(skipped)")
