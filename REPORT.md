@@ -56,11 +56,11 @@ We derived a **10-category intent taxonomy** designed around actionable downstre
 | `hardware_and_audio` | Display unresponsiveness, microphone/speaker faults, cracked glass | Schedule Genius Bar physical appointment |
 | `apple_id_and_icloud` | Password reset, two-factor authentication, locked Apple ID, iCloud sync | Direct to `iforgot.apple.com` via secure DM |
 | `billing_and_subscriptions` | Unexpected App Store charges, refund requests, subscription renewals | Route to `reportaproblem.apple.com` |
-| `device_performance_freeze`| Stuck on Apple logo, boot loops, black screen, extreme latency | Provide hard reset key sequence for model |
+| `device_performance_freeze` | Stuck on Apple logo, boot loops, black screen, extreme latency | Provide hard reset key sequence for model |
 | `connectivity_and_network` | Wi-Fi drops, Bluetooth pairing, cellular data / "No Service" | Reset Network Settings; toggle Airplane mode |
 | `general_inquiry_features` | Feature compatibility, how-to inquiries, configuration advice | Provide step-by-step user guide article |
 | `store_orders_and_repairs` | Retail store appointments, order shipments, repair status tracking | Direct to Apple Store app or order lookup portal |
-| `complaint_and_frustration`| Generic anger, venting, or dissatisfaction without actionable technical query | De-escalate empathetically, offer DM channel |
+| `complaint_and_frustration` | Generic anger, venting, or dissatisfaction without actionable technical query | De-escalate empathetically, offer DM channel |
 
 ---
 
@@ -97,7 +97,7 @@ To constrain the generative model, we implemented a **Historical In-Context Retr
    - Use placeholder handle `@customer` to respect customer privacy.
    - Preserve Apple's closing initialism convention (`^XX`).
 
-This retrieval step grounds the generative model in verified human responses, reducing factual hallucination to near-zero.
+This retrieval step is intended to constrain the generative model to historically observed support responses and reduce unsupported advice; it is not a guarantee of zero hallucination.
 
 ---
 
@@ -158,10 +158,10 @@ pie title Golden Evaluation Set Stratification (200 Curated Examples)
 4. **Edge Cases (20%, 40 items)**: Abusive rants, legal threats, billing disputes, PII disclosures, and physical hardware hazards.
 
 ### Labelling Protocol & Inter-Annotator Agreement Framework
-All 200 items follow the rigorous operational guidelines in [`docs/LABELLING_GUIDELINES.md`](file:///c:/Users/ravi5/OneDrive/Desktop/hiver/docs/LABELLING_GUIDELINES.md). To guarantee objective ground truth without self-fulfilling bias:
-- **Dual-Annotator Staging**: Two independent task files (`data/annotation/annotator_a.csv` and `data/annotation/annotator_b.csv`) have been generated with a 50-item overlap set for inter-annotator agreement.
-- **Inter-Annotator Agreement Tooling**: [`scripts/compute_annotation_agreement.py`](file:///c:/Users/ravi5/OneDrive/Desktop/hiver/scripts/compute_annotation_agreement.py) computes Cohen's $\kappa$ on both intent classification and escalation decisions.
-- **Current Status**: Marked **PENDING** human review in [`results/annotation_agreement.json`](file:///c:/Users/ravi5/OneDrive/Desktop/hiver/results/annotation_agreement.json). No fabricated $\kappa$ or synthetic annotator identities are accepted as substitute ground truth.
+All 200 items follow the rigorous operational guidelines in `docs/LABELLING_GUIDELINES.md`. To guarantee objective ground truth without self-fulfilling bias:
+- **Dual-Annotator Staging**: Two independent task files (`data/annotation/annotator_a.csv` and `data/annotation/annotator_b.csv`) were generated with a 50-item overlap set for inter-annotator agreement.
+- **Inter-Annotator Agreement Tooling**: `scripts/compute_annotation_agreement.py` computes Cohen's $\kappa$ on both intent classification and escalation decisions.
+- **Completed Status**: All 200 examples are human-reviewed, and `results/annotation_agreement.json` records the measured agreement. No fabricated $\kappa$ or synthetic annotator identities are used as ground truth.
 - **Precedence Rules**: If a tweet cites both frustration and a technical issue (e.g., *"iOS 11 ruined my battery"*), the technical category (`battery_and_charging`) takes precedence for routing, while customer frustration is captured by the escalation engine.
 
 ---
@@ -248,7 +248,7 @@ All 10 leakage assertions passed for this run (the harness aborts instead of rep
 #### Judge vs human agreement (n=40)
 
 | Dimension | Spearman | Exact | Adjacent ±1 | MAE | QWK |
-|---|:---:|:---:|:---:|:---:|:---:|
+|---|---:|---:|---:|---:|---:|
 | relevance | 0.084 | 5.0% | 47.5% | 1.50 | 0.009 |
 | groundedness | -0.202 | 5.0% | 45.0% | 1.55 | -0.020 |
 | helpfulness | 0.103 | 30.0% | 77.5% | 0.95 | 0.028 |
@@ -258,82 +258,63 @@ All 10 leakage assertions passed for this run (the harness aborts instead of rep
 #### Inter-annotator agreement (n=50 overlap rows)
 
 | Decision | Cohen's κ | Raw agreement | Disagreements |
-|---|:---:|:---:|:---:|
+|---|---:|---:|---:|
 | intent | 0.973 | 98.0% | 1/50 |
 | escalation | 1.000 | 100.0% | 0/50 |
 
 *Generated by `scripts/render_results.py --benchmark headline` from `results/comparison_headline.json`. Do not edit by hand.*
 <!-- END GENERATED RESULTS: headline -->
 
----
-
-## 8. Proof & Trust: Why is this System Good Enough to Deploy?
-
-The core question of this take-home is: **"Convince us the agent is good enough to trust."**
-
-We argue that trust is not built on claiming artificial 100% accuracy, but on **deterministic safety boundaries, rigorous error quantification, and graceful de-escalation**.
-
-### 1. Deterministic Safety Guards & Hybrid Escalation
-In customer support, a false negative on safety-critical escalation (failing to escalate legal threats, PII disclosures, or physical battery hazards) is catastrophic:
-- All deterministic patterns (legal threats, PII, physical hazards, account compromise, explicit human requests) are intercepted deterministically via regex rules in under 1 millisecond before generative inference.
-- On the headline benchmark, the hybrid engine achieved **58.3% recall and 50.0% precision** on the broader escalation challenge (which includes conversational ambiguities and soft distress signals). Zero safety-critical escape events occurred.
-- Every single critical issue is intercepted deterministically in under 1 millisecond.
-
-### 2. Bounded Failure Modes & Failure Analysis
-In our audit of failure cases on the Main Agent:
-- **Failure Mode 1: Ambiguous One-Liners (`@AppleSupport iOS 11`)**: The model predicted `general_inquiry_features` where the gold label was `software_update_os`. However, the generated reply was:
-  > *"@customer Which device are you using, and what issue are you seeing with iOS 11? Send us a DM with details so we can assist."*
-  *Impact*: Benign. The agent successfully triaged the ambiguity without hallucinating troubleshooting steps.
-- **Failure Mode 2: Multi-Turn Frustration**: When customers expressed deep anger, the agent occasionally attempted both a helpful tip and an escalation recommendation simultaneously.
-  *Mitigation*: We added a guardrail enforcing that if `should_escalate == True`, the generative reply is constrained to a pure de-escalation handoff: acknowledging the distress and providing an immediate human DM channel.
-
-### 3. Factual Grounding Guarantees
-Because every response is conditioned on 3 verified historical Apple solutions:
-- 0% fabricated support links (all URLs map to valid Apple subdomains: `support.apple.com`, `iforgot.apple.com`, `reportaproblem.apple.com`).
-- 0% violation of Twitter's 280-character limit.
-- 0% leakage of internal customer data.
+Every figure above is generated from `results/comparison_headline.json` by
+`scripts/render_results.py`. `python scripts/render_results.py --check` fails if
+this README has drifted from the artifacts.
 
 ---
 
-## 9. Production Architecture & Operational Economics
+## 8. Leakage controls
 
-### Latency vs Cost vs Quality Trade-Offs
+Seven invariants, asserted at runtime. A violation aborts the run with exit code 4
+rather than printing a number.
 
-| Architecture Strategy | Unit Cost per 1,000 Inquiries | Average Latency | Reliability & Uptime |
-|---|:---:|:---:|:---:|
-| **Local Private SLM (Llama 3.2 3B on GPU)** | ~$0.04 (compute power) | ~800 ms | High (100% private, zero egress) |
-| **Cloud Fast LPU (Groq GPT-OSS 120B / Llama 3.3)**| ~$0.15 | ~350 ms | High (Enterprise SLA) |
-| **Proprietary Frontier (GPT-4o / Claude Opus)** | ~$8.50 | ~1,800 ms | Overkill for Twitter character budget |
-
-### Human-in-the-Loop (HITL) Workflow
-
-```mermaid
-flowchart TD
-    IN["Inbound Customer Message"] --> AI["AI Support Agent"]
-    AI -->|"Tier 1 / 2 Escalation"| TIER2_Q["Specialized Tier-2 Queue<br/>(Reason Pre-populated in Hiver Inbox)"]
-    AI -->|"Auto-Handle Candidate"| CONF{"Model Confidence<br/>>= 0.85?"}
-
-    CONF -->|"Low Confidence (< 0.85)"| REVIEW["Human Agent Queue<br/>(Single-Click Approval)"]
-    CONF -->|"High Confidence (>= 0.85)"| COPILOT{"Co-Pilot Phase<br/>(First 30 Days)?"}
-
-    COPILOT -->|"YES"| REVIEW
-    COPILOT -->|"NO (>95% Acceptance)"| AUTO_SEND["🚀 Instant Autonomous Tweet"]
-
-    REVIEW -->|"Approved by Human"| AUTO_SEND
-    REVIEW -->|"Edited by Human"| DRIFT_LOG["Feedback Loop & Model Fine-Tuning"]
-
-    style IN fill:#e1f5fe,stroke:#0288d1
-    style AUTO_SEND fill:#e8f8f5,stroke:#2e7d32,stroke-width:2px
-    style TIER2_Q fill:#ffebee,stroke:#c62828
-```
-
-In production, the agent operates in **Co-Pilot Mode** during the first 30 days:
-1. Automated replies for non-escalated queries with confidence $\ge 0.85$ are queued for single-click human agent approval.
-2. Escalated tickets are routed directly to specialized tier-2 human queues with the automated intent and stated escalation reason pre-populated in the Hiver inbox.
-3. Once human approval rate exceeds 95% over 10,000 tickets, full autonomous auto-handling is enabled for low-risk technical intents.
+| Invariant | Why it exists |
+|---|---|
+| Golden examples excluded from the retrieval corpus | The golden set was sampled from the retrieval threads, so the nearest neighbour was the example itself. This inflated the simple baseline to ROUGE-1 0.797 and groundedness 5.00/5.00 at zero variance. |
+| No system retrieves the example it is scored on | Runtime check that catches near-duplicates the corpus filter misses |
+| Baselines scored on out-of-fold predictions only | The TF-IDF classifier was fitted on the whole dataset originally, which leaked labels into its features. |
+| Same examples for every system | Baseline comparisons must be paired, not on different random samples. |
+| No gold labels reachable from inference imports | Prevents the answer itself from being encoded in the model path. |
+| No gold-label strings in inference source | Static guard against accidental hard-coding. |
+| Pre-labelled files forbidden in normal benchmark mode | Keeps heuristic labels from becoming silent ground truth. |
 
 ---
 
-## 10. Conclusion
+## 9. Runtime & Reproducibility
 
-By combining **data-driven intent discovery**, **historical retrieval-augmented grounding**, and a **hybrid safety-first escalation cascade**, we have demonstrated an AI support agent that respects Apple's brand voice, eliminates factual hallucination, and delivers verifiable mathematical proof of reliability across an independently audited golden set.
+The full 5,000-thread processing step is vectorized and completes in seconds on a
+normal laptop. The headline benchmark's 5.2-minute wall time is dominated by free-tier
+LLM calls and provider rate limiting, not CPU work. Checkpointing is enabled so an
+interrupted API run can resume without discarding completed examples.
+
+`results/run_config_headline.json` records the benchmark configuration and measured
+runtime, while `results/comparison_headline.json` stores the generated metric table.
+
+---
+
+## 10. Limitations & Honest Conclusions
+
+The system demonstrates a complete and auditable evaluation setup, but the measured
+model performance is not production-grade. The headline intent accuracy is 40.0%
+and macro-F1 is 0.345, while the hybrid escalation F1 is 53.8%. Reply quality is
+also difficult to summarize with lexical overlap alone: Main ROUGE-2 is only 0.0501,
+and the benchmark observed one invalid-support-URL violation.
+
+Judge calibration is a significant limitation. On the 40 human-rated replies, the
+judge's agreement is weak on several dimensions (for example groundedness Spearman
+$\rho=-0.202$), so judge scores should be treated as diagnostic rather than as a
+replacement for human evaluation. The calibration also uses one human rater, which
+limits how strongly inter-rater reliability can be inferred.
+
+The main evidence of robustness is therefore methodological: human-reviewed ground
+truth, independent overlap annotation, runtime leakage assertions, explicit output
+validation, and reproducible artifacts. The project should be viewed as a well-
+audited prototype rather than a production-ready support agent.
