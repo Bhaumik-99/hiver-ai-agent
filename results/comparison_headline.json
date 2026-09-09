@@ -5,10 +5,10 @@
     "benchmark_size": 40,
     "golden_set_total": 200,
     "seed": 42,
-    "agent_model": "ollama/llama3.2:latest",
-    "judge_model": "ollama/llama3.2:latest",
-    "judge_differs_from_agent": false,
-    "provider": "ollama",
+    "agent_model": "qwen/qwen3.8-27b",
+    "judge_model": "openai/gpt-oss-120b",
+    "judge_differs_from_agent": true,
+    "provider": "groq",
     "temperature": {
       "intent": 0.1,
       "reply": 0.4,
@@ -28,29 +28,28 @@
       "store_orders_and_repairs",
       "complaint_and_frustration"
     ],
-    "golden_set_sha256_16": "6d94c7983f10ba56",
-    "golden_set_path": "data/golden_set_prelabelled.csv",
+    "golden_set_sha256_16": "4f1c1a8fd18e474a",
+    "golden_set_path": "data/golden_set_final.csv",
     "golden_set_provenance": {
-      "path": "data/golden_set_prelabelled.csv",
-      "source_stage": "prelabelled",
-      "sha256_16": "6d94c7983f10ba56",
+      "path": "data/golden_set_final.csv",
+      "source_stage": "final",
+      "sha256_16": "4f1c1a8fd18e474a",
       "schema_problems": [],
       "total": 200,
-      "human_reviewed": 0,
-      "pre_labelled_heuristic": 200,
+      "human_reviewed": 200,
+      "pre_labelled_heuristic": 0,
       "pending_review": 0,
-      "fully_human_reviewed": false,
+      "fully_human_reviewed": true,
       "relabelling_check": {
         "checked": true,
-        "n_claiming_human_review": 0,
-        "n_identical_to_prelabels": 0,
+        "n_claiming_human_review": 200,
+        "n_identical_to_prelabels": 33,
         "n_retaining_generator_marker": 0,
         "suspicious": false
       },
-      "labels_are_provisional": true,
-      "warning": "PROVISIONAL RESULTS: scored against heuristic pre-labels, not human ground truth. These numbers measure agreement with scripts/label_golden_set.py, not with a human annotator."
+      "labels_are_provisional": false
     },
-    "labels_are_provisional": true,
+    "labels_are_provisional": false,
     "retrieval_corpus_size": 4784,
     "golden_threads_held_out": 216,
     "escalation_base_rate": 0.3,
@@ -115,26 +114,26 @@
         "system": "main"
       }
     ],
-    "total_wall_time_seconds": 1.3,
+    "total_wall_time_seconds": 287.5,
     "per_system_wall_time_seconds": {
-      "trivial": 0.0,
-      "simple": 0.0,
-      "main": 0.0
+      "trivial": 0.02,
+      "simple": 0.02,
+      "main": 284.83
     },
     "judge_enabled": false
   },
   "trivial": {
     "metrics": {
       "intent_classification": {
-        "accuracy": 0.425,
-        "macro_f1": 0.0596,
-        "weighted_f1": 0.2535,
+        "accuracy": 0.325,
+        "macro_f1": 0.0491,
+        "weighted_f1": 0.1594,
         "per_class": {
           "apple_id_and_icloud": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 4.0
           },
           "battery_and_charging": {
             "precision": 0.0,
@@ -146,43 +145,43 @@
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 2.0
           },
           "complaint_and_frustration": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 5.0
+            "support": 2.0
           },
           "connectivity_and_network": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 2.0
           },
           "device_performance_freeze": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 4.0
           },
           "general_inquiry_features": {
-            "precision": 0.425,
+            "precision": 0.325,
             "recall": 1.0,
-            "f1-score": 0.5965,
-            "support": 17.0
+            "f1-score": 0.4906,
+            "support": 13.0
           },
           "hardware_and_audio": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 2.0
+            "support": 4.0
           },
           "software_update_os": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 8.0
+            "support": 5.0
           },
           "store_orders_and_repairs": {
             "precision": 0.0,
@@ -212,7 +211,7 @@
               0,
               0,
               0,
-              1,
+              4,
               0,
               0,
               0
@@ -236,7 +235,67 @@
               0,
               0,
               0,
-              1,
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              13,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              4,
               0,
               0,
               0
@@ -264,75 +323,15 @@
               0,
               0,
               0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              17,
-              0,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              2,
-              0,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              8,
-              0,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0
             ]
           ]
         },
         "off_taxonomy_predictions": [],
         "n_off_taxonomy": 0,
         "accuracy_ci95": {
-          "point": 0.425,
-          "lo": 0.275,
-          "hi": 0.575,
+          "point": 0.325,
+          "lo": 0.175,
+          "hi": 0.475,
           "n": 40
         }
       },
@@ -357,9 +356,9 @@
         }
       },
       "rouge_scores": {
-        "rouge1": 0.2547,
-        "rouge2": 0.0642,
-        "rougeL": 0.1922
+        "rouge1": 0.2391,
+        "rouge2": 0.0564,
+        "rougeL": 0.1721
       },
       "reply_stats": {
         "avg_length_chars": 116.0,
@@ -373,7 +372,7 @@
         "total_time_seconds": 0.0,
         "samples_evaluated": 40
       },
-      "wall_time_seconds": 0.0,
+      "wall_time_seconds": 0.02,
       "reply_validation": {
         "n_replies": 40,
         "n_replies_with_violation": 0,
@@ -389,15 +388,15 @@
   "simple": {
     "metrics": {
       "intent_classification": {
-        "accuracy": 0.475,
-        "macro_f1": 0.1104,
-        "weighted_f1": 0.3566,
+        "accuracy": 0.375,
+        "macro_f1": 0.102,
+        "weighted_f1": 0.2315,
         "per_class": {
           "apple_id_and_icloud": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 4.0
           },
           "battery_and_charging": {
             "precision": 0.0,
@@ -409,43 +408,43 @@
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 2.0
           },
           "complaint_and_frustration": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 5.0
+            "support": 2.0
           },
           "connectivity_and_network": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 2.0
           },
           "device_performance_freeze": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 4.0
           },
           "general_inquiry_features": {
-            "precision": 0.4444,
-            "recall": 0.9412,
-            "f1-score": 0.6038,
-            "support": 17.0
+            "precision": 0.3514,
+            "recall": 1.0,
+            "f1-score": 0.52,
+            "support": 13.0
           },
           "hardware_and_audio": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 2.0
+            "support": 4.0
           },
           "software_update_os": {
-            "precision": 0.75,
-            "recall": 0.375,
+            "precision": 0.6667,
+            "recall": 0.4,
             "f1-score": 0.5,
-            "support": 8.0
+            "support": 5.0
           },
           "store_orders_and_repairs": {
             "precision": 0.0,
@@ -475,7 +474,7 @@
               0,
               0,
               0,
-              1,
+              4,
               0,
               0,
               0
@@ -490,66 +489,6 @@
               3,
               0,
               0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              5,
-              0,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              16,
-              0,
-              1,
               0
             ],
             [
@@ -571,9 +510,69 @@
               0,
               0,
               0,
-              5,
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              4,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              13,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
               0,
               3,
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              3,
+              0,
+              2,
               0
             ],
             [
@@ -593,57 +592,57 @@
         "off_taxonomy_predictions": [],
         "n_off_taxonomy": 0,
         "accuracy_ci95": {
-          "point": 0.475,
-          "lo": 0.325,
-          "hi": 0.625,
+          "point": 0.375,
+          "lo": 0.225,
+          "hi": 0.525,
           "n": 40
         }
       },
       "escalation": {
-        "accuracy": 0.825,
-        "precision": 0.8571,
-        "recall": 0.5,
-        "f1": 0.6316,
+        "accuracy": 0.725,
+        "precision": 0.5714,
+        "recall": 0.3333,
+        "f1": 0.4211,
         "confusion": {
-          "tp": 6,
-          "fp": 1,
-          "fn": 6,
-          "tn": 27
+          "tp": 4,
+          "fp": 3,
+          "fn": 8,
+          "tn": 25
         },
         "total_escalated": 7,
         "total_should_escalate": 12,
         "accuracy_ci95": {
-          "point": 0.825,
-          "lo": 0.7,
-          "hi": 0.925,
+          "point": 0.725,
+          "lo": 0.575,
+          "hi": 0.85,
           "n": 40
         }
       },
       "rouge_scores": {
-        "rouge1": 0.2959,
-        "rouge2": 0.1406,
-        "rougeL": 0.2558
+        "rouge1": 0.3165,
+        "rouge2": 0.1513,
+        "rougeL": 0.2603
       },
       "reply_stats": {
-        "avg_length_chars": 127.7,
-        "avg_length_words": 21.3,
-        "min_length": 29,
-        "max_length": 279,
+        "avg_length_chars": 140.3,
+        "avg_length_words": 23.0,
+        "min_length": 23,
+        "max_length": 249,
         "empty_replies": 0
       },
       "performance": {
         "avg_time_seconds": 0.0,
-        "total_time_seconds": 0.18,
+        "total_time_seconds": 0.13,
         "samples_evaluated": 40
       },
-      "wall_time_seconds": 0.0,
+      "wall_time_seconds": 0.02,
       "reply_validation": {
         "n_replies": 40,
         "n_replies_with_violation": 0,
         "violation_rate": 0.0,
         "counts_by_type": {},
         "examples_by_type": {},
-        "max_reply_length": 279,
+        "max_reply_length": 249,
         "n_over_char_limit": 0
       }
     },
@@ -652,63 +651,63 @@
   "main": {
     "metrics": {
       "intent_classification": {
-        "accuracy": 0.475,
-        "macro_f1": 0.3108,
-        "weighted_f1": 0.4884,
+        "accuracy": 0.4,
+        "macro_f1": 0.3454,
+        "weighted_f1": 0.4147,
         "per_class": {
           "apple_id_and_icloud": {
-            "precision": 0.5,
-            "recall": 1.0,
+            "precision": 0.6,
+            "recall": 0.75,
             "f1-score": 0.6667,
-            "support": 1.0
+            "support": 4.0
           },
           "battery_and_charging": {
-            "precision": 0.3333,
+            "precision": 1.0,
             "recall": 0.3333,
-            "f1-score": 0.3333,
+            "f1-score": 0.5,
             "support": 3.0
           },
           "billing_and_subscriptions": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 2.0
           },
           "complaint_and_frustration": {
-            "precision": 0.3077,
-            "recall": 0.8,
-            "f1-score": 0.4444,
-            "support": 5.0
+            "precision": 0.125,
+            "recall": 1.0,
+            "f1-score": 0.2222,
+            "support": 2.0
           },
           "connectivity_and_network": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
-          },
-          "device_performance_freeze": {
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1-score": 0.0,
-            "support": 1.0
-          },
-          "general_inquiry_features": {
-            "precision": 0.8,
-            "recall": 0.4706,
-            "f1-score": 0.5926,
-            "support": 17.0
-          },
-          "hardware_and_audio": {
-            "precision": 0.5,
-            "recall": 0.5,
-            "f1-score": 0.5,
             "support": 2.0
           },
+          "device_performance_freeze": {
+            "precision": 1.0,
+            "recall": 0.75,
+            "f1-score": 0.8571,
+            "support": 4.0
+          },
+          "general_inquiry_features": {
+            "precision": 0.4444,
+            "recall": 0.3077,
+            "f1-score": 0.3636,
+            "support": 13.0
+          },
+          "hardware_and_audio": {
+            "precision": 1.0,
+            "recall": 0.25,
+            "f1-score": 0.4,
+            "support": 4.0
+          },
           "software_update_os": {
-            "precision": 0.6667,
-            "recall": 0.5,
-            "f1-score": 0.5714,
-            "support": 8.0
+            "precision": 0.5,
+            "recall": 0.4,
+            "f1-score": 0.4444,
+            "support": 5.0
           },
           "store_orders_and_repairs": {
             "precision": 0.0,
@@ -732,13 +731,13 @@
           ],
           "matrix": [
             [
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
               1,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
               0,
               0,
               0
@@ -747,96 +746,72 @@
               0,
               1,
               0,
-              0,
-              0,
-              1,
-              1,
-              0,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1
-            ],
-            [
-              0,
-              0,
-              0,
-              4,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0
-            ],
-            [
-              1,
               2,
               0,
-              5,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              1,
+              3,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
               0,
               0,
               8,
               0,
-              1,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              2,
-              0,
-              2,
-              0,
               0,
               4,
+              0,
+              0,
               0
             ],
             [
@@ -847,6 +822,30 @@
               0,
               0,
               1,
+              1,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              1,
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
               0,
               0,
               0
@@ -856,61 +855,71 @@
         "off_taxonomy_predictions": [],
         "n_off_taxonomy": 0,
         "accuracy_ci95": {
-          "point": 0.475,
-          "lo": 0.325,
-          "hi": 0.625,
+          "point": 0.4,
+          "lo": 0.25,
+          "hi": 0.55,
           "n": 40
         }
       },
       "escalation": {
-        "accuracy": 0.7,
-        "precision": 0.5,
+        "accuracy": 0.675,
+        "precision": 0.4667,
         "recall": 0.5833,
-        "f1": 0.5385,
+        "f1": 0.5185,
         "confusion": {
           "tp": 7,
-          "fp": 7,
+          "fp": 8,
           "fn": 5,
-          "tn": 21
+          "tn": 20
         },
-        "total_escalated": 14,
+        "total_escalated": 15,
         "total_should_escalate": 12,
         "accuracy_ci95": {
-          "point": 0.7,
-          "lo": 0.55,
-          "hi": 0.85,
+          "point": 0.675,
+          "lo": 0.525,
+          "hi": 0.825,
           "n": 40
         }
       },
       "rouge_scores": {
-        "rouge1": 0.2724,
-        "rouge2": 0.0916,
-        "rougeL": 0.2047
+        "rouge1": 0.2198,
+        "rouge2": 0.0488,
+        "rougeL": 0.1577
       },
       "reply_stats": {
-        "avg_length_chars": 171.9,
-        "avg_length_words": 29.6,
-        "min_length": 115,
-        "max_length": 274,
+        "avg_length_chars": 172.5,
+        "avg_length_words": 29.5,
+        "min_length": 120,
+        "max_length": 243,
         "empty_replies": 0
       },
       "performance": {
-        "avg_time_seconds": 21.24,
-        "total_time_seconds": 849.43,
+        "avg_time_seconds": 9.79,
+        "total_time_seconds": 391.55,
         "samples_evaluated": 40
       },
-      "wall_time_seconds": 0.0,
+      "wall_time_seconds": 284.83,
       "reply_validation": {
         "n_replies": 40,
-        "n_replies_with_violation": 0,
-        "violation_rate": 0.0,
-        "counts_by_type": {},
-        "examples_by_type": {},
-        "max_reply_length": 274,
+        "n_replies_with_violation": 1,
+        "violation_rate": 0.025,
+        "counts_by_type": {
+          "invalid_support_url": 1
+        },
+        "examples_by_type": {
+          "invalid_support_url": [
+            {
+              "index": 9,
+              "customer_message": "@AppleSupport hi, I'd forgotten my password, did the recover, got message saying reset next day at 7pm. Day passed no re",
+              "reply": "@customer We\u2019re sorry for the frustration. Please DM us so we can securely verify your identity and help resolve this Apple ID issue. https://t.co/xyz",
+              "detail": "malformed t.co short link 'https://t.co/xyz'"
+            }
+          ]
+        },
+        "max_reply_length": 243,
         "n_over_char_limit": 0
       }
     },
     "judge": {}
-  },
-  "PROVISIONAL": "PROVISIONAL RESULTS: scored against heuristic pre-labels, not human ground truth. These numbers measure agreement with scripts/label_golden_set.py, not with a human annotator."
+  }
 }

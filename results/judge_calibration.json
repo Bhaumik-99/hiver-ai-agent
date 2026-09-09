@@ -1,12 +1,68 @@
 {
-  "status": "PENDING",
-  "requirement": "The assignment requires evidence of how well the LLM judge agrees with a HUMAN.",
-  "reason": "no human ratings file at data/judge_calibration/judge_calibration_human.csv",
-  "how_to_complete": [
-    "python scripts/run_evaluation.py --benchmark headline",
-    "python scripts/build_judge_calibration_task.py",
-    "score every row of data/judge_calibration/judge_calibration_task.csv and save it as judge_calibration_human.csv",
-    "python scripts/compute_judge_calibration.py"
+  "status": "COMPUTED",
+  "n_samples": 40,
+  "judge_model": "openai/gpt-oss-120b",
+  "human_rater_count": 1,
+  "per_dimension": {
+    "relevance": {
+      "spearman_correlation": 0.084,
+      "spearman_p_value": 0.6062,
+      "exact_agreement": 0.05,
+      "adjacent_agreement": 0.475,
+      "mean_absolute_error": 1.5,
+      "n_samples": 40,
+      "quadratic_weighted_kappa": 0.0089
+    },
+    "groundedness": {
+      "spearman_correlation": -0.2024,
+      "spearman_p_value": 0.2105,
+      "exact_agreement": 0.05,
+      "adjacent_agreement": 0.45,
+      "mean_absolute_error": 1.55,
+      "n_samples": 40,
+      "quadratic_weighted_kappa": -0.0197
+    },
+    "helpfulness": {
+      "spearman_correlation": 0.1031,
+      "spearman_p_value": 0.5267,
+      "exact_agreement": 0.3,
+      "adjacent_agreement": 0.775,
+      "mean_absolute_error": 0.95,
+      "n_samples": 40,
+      "quadratic_weighted_kappa": 0.0283
+    },
+    "tone": {
+      "spearman_correlation": 0.2922,
+      "spearman_p_value": 0.0673,
+      "exact_agreement": 0.0,
+      "adjacent_agreement": 0.175,
+      "mean_absolute_error": 1.825,
+      "n_samples": 40,
+      "quadratic_weighted_kappa": 0.0163
+    },
+    "completeness": {
+      "spearman_correlation": 0.0665,
+      "spearman_p_value": 0.6836,
+      "exact_agreement": 0.15,
+      "adjacent_agreement": 0.65,
+      "mean_absolute_error": 1.225,
+      "n_samples": 40,
+      "quadratic_weighted_kappa": 0.011
+    }
+  },
+  "overall": {
+    "spearman_correlation": 0.1117,
+    "spearman_p_value": 0.4926,
+    "exact_agreement": 0.0,
+    "adjacent_agreement": 0.25,
+    "mean_absolute_error": 1.39,
+    "n_samples": 40
+  },
+  "systems_represented": [
+    "main"
   ],
-  "task_file_exists": true
+  "caveats": [
+    "Single human rater, so this measures agreement with one person's judgement, not with a consensus of annotators.",
+    "n=40 is small; the correlations carry wide uncertainty."
+  ]
 }

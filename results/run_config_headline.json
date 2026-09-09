@@ -4,10 +4,10 @@
   "benchmark_size": 40,
   "golden_set_total": 200,
   "seed": 42,
-  "agent_model": "ollama/llama3.2:latest",
-  "judge_model": "ollama/llama3.2:latest",
-  "judge_differs_from_agent": false,
-  "provider": "ollama",
+  "agent_model": "qwen/qwen3.8-27b",
+  "judge_model": "openai/gpt-oss-120b",
+  "judge_differs_from_agent": true,
+  "provider": "groq",
   "temperature": {
     "intent": 0.1,
     "reply": 0.4,
@@ -27,29 +27,28 @@
     "store_orders_and_repairs",
     "complaint_and_frustration"
   ],
-  "golden_set_sha256_16": "6d94c7983f10ba56",
-  "golden_set_path": "data/golden_set_prelabelled.csv",
+  "golden_set_sha256_16": "4f1c1a8fd18e474a",
+  "golden_set_path": "data/golden_set_final.csv",
   "golden_set_provenance": {
-    "path": "data/golden_set_prelabelled.csv",
-    "source_stage": "prelabelled",
-    "sha256_16": "6d94c7983f10ba56",
+    "path": "data/golden_set_final.csv",
+    "source_stage": "final",
+    "sha256_16": "4f1c1a8fd18e474a",
     "schema_problems": [],
     "total": 200,
-    "human_reviewed": 0,
-    "pre_labelled_heuristic": 200,
+    "human_reviewed": 200,
+    "pre_labelled_heuristic": 0,
     "pending_review": 0,
-    "fully_human_reviewed": false,
+    "fully_human_reviewed": true,
     "relabelling_check": {
       "checked": true,
-      "n_claiming_human_review": 0,
-      "n_identical_to_prelabels": 0,
+      "n_claiming_human_review": 200,
+      "n_identical_to_prelabels": 33,
       "n_retaining_generator_marker": 0,
       "suspicious": false
     },
-    "labels_are_provisional": true,
-    "warning": "PROVISIONAL RESULTS: scored against heuristic pre-labels, not human ground truth. These numbers measure agreement with scripts/label_golden_set.py, not with a human annotator."
+    "labels_are_provisional": false
   },
-  "labels_are_provisional": true,
+  "labels_are_provisional": false,
   "retrieval_corpus_size": 4784,
   "golden_threads_held_out": 216,
   "escalation_base_rate": 0.3,
@@ -114,11 +113,11 @@
       "system": "main"
     }
   ],
-  "total_wall_time_seconds": 1.3,
+  "total_wall_time_seconds": 287.5,
   "per_system_wall_time_seconds": {
-    "trivial": 0.0,
-    "simple": 0.0,
-    "main": 0.0
+    "trivial": 0.02,
+    "simple": 0.02,
+    "main": 284.83
   },
   "judge_enabled": false
 }

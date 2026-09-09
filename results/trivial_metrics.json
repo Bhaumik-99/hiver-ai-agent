@@ -1,14 +1,14 @@
 {
   "intent_classification": {
-    "accuracy": 0.425,
-    "macro_f1": 0.0596,
-    "weighted_f1": 0.2535,
+    "accuracy": 0.325,
+    "macro_f1": 0.0491,
+    "weighted_f1": 0.1594,
     "per_class": {
       "apple_id_and_icloud": {
         "precision": 0.0,
         "recall": 0.0,
         "f1-score": 0.0,
-        "support": 1.0
+        "support": 4.0
       },
       "battery_and_charging": {
         "precision": 0.0,
@@ -20,43 +20,43 @@
         "precision": 0.0,
         "recall": 0.0,
         "f1-score": 0.0,
-        "support": 1.0
+        "support": 2.0
       },
       "complaint_and_frustration": {
         "precision": 0.0,
         "recall": 0.0,
         "f1-score": 0.0,
-        "support": 5.0
+        "support": 2.0
       },
       "connectivity_and_network": {
         "precision": 0.0,
         "recall": 0.0,
         "f1-score": 0.0,
-        "support": 1.0
+        "support": 2.0
       },
       "device_performance_freeze": {
         "precision": 0.0,
         "recall": 0.0,
         "f1-score": 0.0,
-        "support": 1.0
+        "support": 4.0
       },
       "general_inquiry_features": {
-        "precision": 0.425,
+        "precision": 0.325,
         "recall": 1.0,
-        "f1-score": 0.5965,
-        "support": 17.0
+        "f1-score": 0.4906,
+        "support": 13.0
       },
       "hardware_and_audio": {
         "precision": 0.0,
         "recall": 0.0,
         "f1-score": 0.0,
-        "support": 2.0
+        "support": 4.0
       },
       "software_update_os": {
         "precision": 0.0,
         "recall": 0.0,
         "f1-score": 0.0,
-        "support": 8.0
+        "support": 5.0
       },
       "store_orders_and_repairs": {
         "precision": 0.0,
@@ -86,7 +86,7 @@
           0,
           0,
           0,
-          1,
+          4,
           0,
           0,
           0
@@ -110,7 +110,67 @@
           0,
           0,
           0,
-          1,
+          2,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          4,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          13,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          4,
           0,
           0,
           0
@@ -138,75 +198,15 @@
           0,
           0,
           0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          17,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          2,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          8,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0
         ]
       ]
     },
     "off_taxonomy_predictions": [],
     "n_off_taxonomy": 0,
     "accuracy_ci95": {
-      "point": 0.425,
-      "lo": 0.275,
-      "hi": 0.575,
+      "point": 0.325,
+      "lo": 0.175,
+      "hi": 0.475,
       "n": 40
     }
   },
@@ -231,9 +231,9 @@
     }
   },
   "rouge_scores": {
-    "rouge1": 0.2547,
-    "rouge2": 0.0642,
-    "rougeL": 0.1922
+    "rouge1": 0.2391,
+    "rouge2": 0.0564,
+    "rougeL": 0.1721
   },
   "reply_stats": {
     "avg_length_chars": 116.0,
@@ -247,7 +247,7 @@
     "total_time_seconds": 0.0,
     "samples_evaluated": 40
   },
-  "wall_time_seconds": 0.0,
+  "wall_time_seconds": 0.02,
   "reply_validation": {
     "n_replies": 40,
     "n_replies_with_violation": 0,
