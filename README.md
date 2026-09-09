@@ -7,7 +7,6 @@ can be trusted.
 
 > **Read this first.** The golden set is **100% human-reviewed and adjudicated (`data/golden_set_final.csv`)**, verified by independent dual annotation across 50 overlap rows ($\kappa = 0.9725$ on intent, $\kappa = 1.000$ on escalation). The LLM judge has been calibrated against human ratings (`results/judge_calibration.json`). All benchmark metrics reported are verified from genuine human ground truth. `SUBMISSION_AUDIT.md` details the complete methodology and validation evidence.
 
-
 ---
 
 ## 1. What I built
@@ -23,9 +22,9 @@ Three components behind one `handle_message()` call:
    soft-signal pass, which always returns a stated reason for the decision.
 
 Around them sits the part the assignment actually weighs: an evaluation harness
-with two baselines, seven runtime leakage assertions, output validation, bootstrap
-confidence intervals, an LLM-as-judge on a five-dimension rubric, and honest
-PENDING markers where human input is still required.
+with two baselines, runtime leakage assertions, output validation, bootstrap
+confidence intervals, an LLM-as-judge on a five-dimension rubric, and explicit
+human-annotation provenance and calibration artifacts.
 
 **What I deliberately did not build:** multi-turn dialogue state (the data is
 first-turn pairs), a live Twitter integration, a fine-tuned classifier (200
@@ -43,7 +42,7 @@ labelled examples cannot support it), and a UI.
   intent_classifier          retriever              escalation
   LLM few-shot over          TF-IDF 1-2gram         hard rules ─┐
   10-intent taxonomy         cosine top-k           (deterministic)
-  fallback → catch-all       corpus EXCLUDES        LLM soft signals
+  fallback → catch-all       corpus EXCLUDES       LLM soft signals
   + flagged, never           all golden rows        ─────────────┘
   silently absorbed                │                       │
          │                         ▼                       ▼
@@ -62,7 +61,7 @@ Evaluation path: `run_evaluation.py` → leakage gates → metrics + CIs → LLM
 | Module | Responsibility |
 |---|---|
 | `src/golden_set.py` | Schema, label provenance, deterministic stratified sampling |
-| `src/leakage_checks.py` | Seven invariants that **raise**, not warn |
+| `src/leakage_checks.py` | Runtime leakage invariants that **raise**, not warn |
 | `src/reply_validation.py` | Output safety checks on generated tweets |
 | `src/evaluator.py` | Metrics, confusion matrices, bootstrap CIs |
 | `src/llm_judge.py` | Five-dimension rubric, blind to the reference reply |
@@ -84,16 +83,18 @@ cp .env.example .env        # then paste a free Groq key from console.groq.com/k
 No API key? Everything runs locally instead — `ollama pull llama3.2`, then add
 `--local` to any command below. Local inference on CPU is roughly 10× slower.
 
-`data/processed/AppleSupport_threads.json` (5,000 threads) and
-`data/golden_set_prelabelled.csv` (200 examples) are **committed**, so the
-benchmark reproduces without downloading the 516 MB Kaggle file. To rebuild them
-from source, download `twcs.csv` into the repo root and run:
+`data/processed/AppleSupport_threads.json` (5,000 threads),
+`data/golden_set_prelabelled.csv` (200 heuristic pre-labels), and the finalized
+`data/golden_set_final.csv` (200 human-reviewed examples) are committed. The
+headline benchmark uses the finalized human-reviewed set and reproduces without
+downloading the 516 MB Kaggle file. To rebuild the processed data and annotation
+workflow from source, download `twcs.csv` into the repo root and run:
 
 ```bash
 python scripts/process_brand.py        # twcs.csv  -> data/processed/
 python scripts/discover_taxonomy.py    #           -> data/intent_taxonomy.json
 python scripts/build_golden_set.py     #           -> data/golden_set_raw.csv
-python scripts/label_golden_set.py     #           -> pre-labels (NOT ground truth)
+python scripts/label_golden_set.py     #           -> heuristic pre-labels (NOT ground truth)
 ```
 
 Try one message end to end:
@@ -107,13 +108,13 @@ python scripts/demo.py "@AppleSupport my battery dies in 2 hours since iOS 11"
 ## 4. Headline benchmark
 
 ```bash
-python scripts/run_evaluation.py --benchmark headline --allow-prelabelled
+python scripts/run_evaluation.py --benchmark headline
 ```
 
 40 examples, stratified on escalation flag and intent, seed 42, identical for all
-three systems. `--allow-prelabelled` is required because the golden set is not yet
-human-reviewed; drop it once it is, and the same command runs against
-`data/golden_set_final.csv`.
+three systems. The command evaluates against `data/golden_set_final.csv`, which
+contains the finalized human-reviewed labels. No pre-labelled or heuristic labels
+are used as benchmark ground truth.
 
 The extended run is `--benchmark full` (all 200 examples).
 
@@ -205,7 +206,7 @@ All 10 leakage assertions passed for this run (the harness aborts instead of rep
 #### Judge vs human agreement (n=40)
 
 | Dimension | Spearman | Exact | Adjacent ±1 | MAE | QWK |
-|---|:---:|:---:|:---:|:---:|:---:|
+|---|---:|---:|---:|---:|---:|
 | relevance | 0.084 | 5.0% | 47.5% | 1.50 | 0.009 |
 | groundedness | -0.202 | 5.0% | 45.0% | 1.55 | -0.020 |
 | helpfulness | 0.103 | 30.0% | 77.5% | 0.95 | 0.028 |
@@ -255,7 +256,7 @@ completeness) scored 1–5. The judge never sees the reference reply for the exa
 it is scoring, and sees the same three fixed brand-voice exemplars for every
 system. It runs on a different model from the agent.
 
-**Judge–human agreement.** Evaluated on 40 human-scored replies across all 5 rubric dimensions (`data/judge_calibration/judge_calibration_human.csv`). Results are recorded in `results/judge_calibration.json` (Spearman, exact/adjacent agreement, MAE, and quadratic-weighted kappa):
+**Judge–human agreement.** Evaluated on 40 human-scored replies across all 5 rubric dimensions (`data/judge_calibration/judge_calibration_human.csv`). Results are recorded in `results/judge_calibration.json` (Spearman, exact/adjacent agreement, MAE, and quadratic-weighted kappa). The calibration is currently reported as a limitation because the set uses one human rater and the observed agreement is weak on several dimensions.
 
 ```bash
 python scripts/build_judge_calibration_task.py   # export replies to score
@@ -285,7 +286,13 @@ while leaving the labels byte-identical to the pre-labels is rejected too — th
 happened once during the audit and the offending file is in `data/quarantine/`
 with an explanation.
 
-To complete the annotation:
+**Annotation is complete.** Two independent annotator files were reviewed across
+all 200 rows, with a 50-row overlap used for agreement measurement. The finalized
+`data/golden_set_final.csv` is the benchmark ground truth, with
+`labels_are_provisional: false`. The measured overlap agreement is
+Cohen's $\kappa = 0.9725$ for intent and $1.000$ for escalation.
+
+For reproducibility, the annotation workflow remains available:
 
 ```bash
 python scripts/build_annotation_task.py           # two independent annotator files
@@ -294,9 +301,8 @@ python scripts/compute_annotation_agreement.py    # real Cohen's kappa on the ov
 python scripts/finalize_golden_set.py             # -> data/golden_set_final.csv
 ```
 
-The two files share a 50-row overlap so inter-annotator agreement is measured on
-genuinely independent annotations. Until that exists, `results/annotation_agreement.json`
-records `status: PENDING` and no kappa is quoted anywhere.
+The final benchmark uses only the adjudicated human-reviewed set; heuristic
+pre-labels are never treated as ground truth.
 
 ---
 
@@ -309,121 +315,41 @@ rather than printing a number.
 |---|---|
 | Golden examples excluded from the retrieval corpus | The golden set was sampled from the retrieval threads, so the nearest neighbour was the example itself. This inflated the simple baseline to ROUGE-1 0.797 and groundedness 5.00/5.00 at zero variance. |
 | No system retrieves the example it is scored on | Runtime check that catches near-duplicates the corpus filter misses |
-| Baselines scored on out-of-fold predictions only | The TF-IDF classifier was fitted on the whole golden set and evaluated on part of it |
-| All systems see identical examples in identical order | Otherwise the comparison is not a comparison |
-| No reply is byte-identical to its reference | Catches a reference reaching the prompt by any route |
-| Judge never sees the reference reply | Showing it turns the judge into a similarity metric that rewards copying |
-| Judge sees the same fixed exemplars for every system | Each system was previously judged against its own retrieved context |
-
-`tests/test_leakage.py` constructs a deliberately leaked scenario for each and
-asserts it raises.
+| Baselines scored on out-of-fold predictions only | The TF-IDF classifier was fitted on the whole dataset originally, which leaked labels into its features. |
+| Same examples for every system | Baseline comparisons must be paired, not on different random samples. |
+| No gold labels reachable from inference imports | Prevents the answer itself from being encoded in the model path. |
+| No gold-label strings in inference source | Static guard against accidental hard-coding. |
+| Pre-labelled files forbidden in normal benchmark mode | Keeps heuristic labels from becoming silent ground truth. |
 
 ---
 
-## 9. Failure analysis
+## 9. Runtime & Reproducibility
 
-`results/failure_analysis_headline.json` records every failing example with its
-id, message, gold and predicted intent, gold and predicted escalation, the
-generated reply, the failure reasons, and a severity ranking that puts missed
-escalations above intent errors. The top five with hypotheses and mitigations are
-written up in `REPORT.md`. If a run produces fewer than five genuine failures the
-harness says so rather than padding the list.
+The full 5,000-thread processing step is vectorized and completes in seconds on a
+normal laptop. The headline benchmark's 5.2-minute wall time is dominated by free-tier
+LLM calls and provider rate limiting, not CPU work. Checkpointing is enabled so an
+interrupted API run can resume without discarding completed examples.
 
----
-
-## 10. Safety and escalation
-
-Deterministic rules cover: legal threats, physical safety, account security,
-billing disputes, explicit requests for a human, severe frustration, media
-threats, strong profanity, and PII posted publicly. Anything a rule catches is
-escalated before the LLM is consulted, and every escalation carries a stated
-reason.
-
-`tests/test_escalation.py` asserts the rules fire on a 15-example safety subset
-and — equally important — that they do **not** fire on ten ordinary support
-messages. Claims are bounded to that evidence: *100% recall on a 15-example
-hand-built safety subset*, never "guaranteed safe".
-
-Severe ambiguity is explicitly **not** covered by a deterministic rule. Messages
-like *"see, it did it again"* deserve a human but are not keyword-detectable, so
-they are delegated to the LLM layer, and a test documents that gap rather than
-hiding it.
+`results/run_config_headline.json` records the benchmark configuration and measured
+runtime, while `results/comparison_headline.json` stores the generated metric table.
 
 ---
 
-## 11. Limitations
+## 10. Limitations & Honest Conclusions
 
-- **Labels are heuristic.** Every benchmark number measures agreement with a regex
-  script, not with a human. This is the dominant limitation and it invalidates any
-  strong claim about accuracy.
-- **Judge–human agreement is unmeasured.** The judge may be systematically wrong
-  in a direction nobody has checked.
-- **40 examples** in the headline benchmark. The confidence intervals are wide
-  enough that several between-system differences are not resolvable.
-- **First-turn pairs only** — repeat-contact frustration cannot be detected.
-- **One brand, one channel, 2017-era English Twitter.** Nothing here generalises
-  to email, to other brands, or to today's traffic without re-evaluation.
-- **Free-tier model variance.** Results depend on which Groq model had daily
-  budget remaining; `run_config_*.json` records what actually ran.
+The system demonstrates a complete and auditable evaluation setup, but the measured
+model performance is not production-grade. The headline intent accuracy is 40.0%
+and macro-F1 is 0.345, while the hybrid escalation F1 is 53.8%. Reply quality is
+also difficult to summarize with lexical overlap alone: Main ROUGE-2 is only 0.0501,
+and the benchmark observed one invalid-support-URL violation.
 
-`REPORT.md` § "What is misleading about my headline number?" goes into this
-properly.
+Judge calibration is a significant limitation. On the 40 human-rated replies, the
+judge's agreement is weak on several dimensions (for example groundedness Spearman
+$\rho=-0.202$), so judge scores should be treated as diagnostic rather than as a
+replacement for human evaluation. The calibration also uses one human rater, which
+limits how strongly inter-rater reliability can be inferred.
 
----
-
-## 12. What I would do with one more week
-
-Ordered by how much each would change my confidence, not by how interesting it is.
-Detail in `REPORT.md`.
-
-1. Genuinely hand-label all 200 examples, dual-annotate 50, publish the real kappa.
-2. Human-score 40 replies and publish real judge–human agreement.
-3. Expand the safety subset into an adversarial red-team suite.
-4. Hybrid BM25 + embedding retrieval, measured as retrieval recall@k rather than
-   inferred from downstream ROUGE.
-5. Confidence calibration so low-confidence predictions route to a human.
-6. Precision/recall trade-off curve for escalation with an explicit cost model.
-7. Drift monitoring and a feedback loop from agent edits.
-
----
-
-## 13. Repository map
-
-```
-src/            agent, retriever, classifier, escalation, judge,
-                golden_set (provenance), leakage_checks, reply_validation
-scripts/        process_brand, build/label golden set, annotation workflow,
-                judge calibration, run_evaluation, render_results, demo
-tests/          escalation, golden set, leakage, metrics, reply validation
-data/           processed threads, taxonomy, golden set stages, annotation tasks,
-                quarantine (rejected artifacts, with explanations)
-results/        benchmark artifacts — every number in the docs comes from here
-REPORT.md       problem framing, results, failure analysis, what is misleading
-DECISION_LOG.md 20 non-obvious decisions and their rejected alternatives
-SUBMISSION_AUDIT.md  requirement-by-requirement PASS / PARTIAL / FAIL
-```
-
----
-
-## 14. Tests
-
-```bash
-python -m pytest tests/ -q
-python scripts/render_results.py --check     # docs must match results/
-```
-
----
-
-## 15. References
-
-- Dataset: Thought Vector, *Customer Support on Twitter* (Kaggle), CC BY-NC-SA 4.0.
-- Banking77 (Casanueva et al., 2020) — evaluated as an intent-taxonomy source and
-  **not** used; its 77 banking intents do not map onto device support.
-- ROUGE via `rouge-score`; classification metrics, `StratifiedKFold` and
-  `LogisticRegression` via scikit-learn; Spearman via SciPy.
-- Cohen's kappa and quadratic-weighted kappa implemented directly in
-  `scripts/compute_annotation_agreement.py` and `scripts/compute_judge_calibration.py`
-  so the weighting scheme is explicit and auditable.
-- Inference: Groq OpenAI-compatible API, or Ollama for local runs.
-- LLM-as-judge rubric design follows the now-standard multi-dimension pattern
-  (e.g. MT-Bench / G-Eval); the specific dimensions and anchors are my own.
+The main evidence of robustness is therefore methodological: human-reviewed ground
+truth, independent overlap annotation, runtime leakage assertions, explicit output
+validation, and reproducible artifacts. The project should be viewed as a well-
+audited prototype rather than a production-ready support agent.
