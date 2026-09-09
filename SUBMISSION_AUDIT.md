@@ -18,7 +18,7 @@
 | **5. Leakage Prevention Architecture** | **PASS** | 216 golden threads quarantined from retrieval corpus. 7 runtime invariants in `src/leakage_checks.py` raise hard `LeakageError` on contamination. 16 unit tests pass (`tests/test_leakage.py`). |
 | **6. Cross-Fitted Baselines** | **PASS** | Trivial majority-class and Simple TF-IDF baselines are cross-fitted using 4-fold `StratifiedKFold` out-of-fold predictions to prevent training leakage. |
 | **7. Throttling, 429 Backoff & Bounded Retries** | **PASS** | Sliding-window TPM rate limiter (`src/rate_limiter.py`). Explicit HTTP 429 detection, exponential backoff, bounded retries (`max_retries=3`), and graceful failure (`GroqRateLimitExceeded`). 8 unit tests pass (`tests/test_rate_limiter.py`). |
-| **8. Headline Benchmark & Checkpointing** | **PASS** | Stratified 40-example benchmark (seed 42) completes in **4.8 minutes (287.5s)** against `data/golden_set_final.csv`, well within the 15-minute budget. Atomic per-example checkpointing with automatic resume. |
+| **8. Headline Benchmark & Checkpointing** | **PASS** | Stratified 40-example benchmark (seed 42) completes in **5.2 minutes (310.5s)** against `data/golden_set_final.csv` (Main agent wall time: 308.9s, processing time: 308.85s, average latency: 7.72s), safely within the 15-minute budget. Atomic per-example checkpointing with automatic resume. |
 | **9. Local / Offline Mode** | **PASS** | Full baseline evaluation runs without Groq/API credentials (`--local --no-judge`). |
 | **10. Output Consistency & Truth in Reporting** | **PASS** | Documentation in `README.md` and `REPORT.md` is rendered programmatically by `scripts/render_results.py`. `render_results.py --check` verifies zero drift. |
 | **11. Inter-Annotator Agreement (Cohen's Kappa)** | **PASS** | Dual-annotated across 50 overlap rows between Annotator A and B (`data/annotation/annotator_a.csv`, `annotator_b.csv`). Intent $\kappa = 0.9725$ (98.0% agreement), Escalation $\kappa = 1.000$ (100% agreement). Saved in `results/annotation_agreement.json`. |
@@ -51,7 +51,7 @@
 
 ### C. Evaluation Rigor & Checkpointing (Status: PASS)
 - **Stratified Sampling**: The 40-example headline benchmark preserves class distribution and the exact 30.0% escalation base rate (12/40 vs 68/200 in the full set).
-- **Runtime Proof**: Measured execution time is **595.4 seconds (9.9 minutes)** on local mode, safely within the 15-minute SLA.
+- **Runtime Proof**: Measured benchmark execution time is **310.5 seconds (5.2 minutes)** total wall time (Main agent wall time: 308.93s, processing time: 308.85s, average latency: 7.72s/sample), safely within the 15-minute SLA.
 - **Checkpoint Resilience**: Results are flushed to JSON after every individual example. Benchmark restarts resume instantly from the last processed index.
 
 ### D. Ground-Truth Annotation & Human Validation (Status: PASS)

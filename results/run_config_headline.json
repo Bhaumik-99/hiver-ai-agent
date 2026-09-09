@@ -113,11 +113,11 @@
       "system": "main"
     }
   ],
-  "total_wall_time_seconds": 287.5,
+  "total_wall_time_seconds": 310.5,
   "per_system_wall_time_seconds": {
-    "trivial": 0.02,
-    "simple": 0.02,
-    "main": 284.83
+    "trivial": 0.05,
+    "simple": 0.23,
+    "main": 308.93
   },
   "judge_enabled": false
 }

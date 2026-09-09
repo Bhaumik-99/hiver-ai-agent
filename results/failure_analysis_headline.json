@@ -3,18 +3,18 @@
   "labels_are_provisional": false,
   "summary": {
     "n_evaluated": 40,
-    "n_examples_with_failure": 29,
+    "n_examples_with_failure": 30,
     "by_severity": {
       "high": 5,
       "medium": 23,
-      "low": 1
+      "low": 2
     },
     "by_reason": {
       "escalation_false_negative": 5,
       "intent_misclassification": 24,
-      "reply_invalid_support_url": 1,
-      "escalation_false_positive": 8,
-      "low_judge_score": 2
+      "escalation_false_positive": 7,
+      "low_judge_score": 2,
+      "reply_invalid_support_url": 1
     }
   },
   "failures": [
@@ -23,12 +23,31 @@
       "difficulty": "hard_short",
       "customer_message": "@AppleSupport For a second, yes.",
       "gold_intent": "software_update_os",
-      "predicted_intent": "complaint_and_frustration",
+      "predicted_intent": "general_inquiry_features",
       "gold_escalation": true,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer Sorry to hear that, we're here to help. DM us with more details about your issue so we can assist you further.",
+      "generated_reply": "@customer We\u2019re here to help! If you have specific questions about a feature, please DM us so we can assist you securely. For general info, check out our support site: https://support.apple.com",
       "judge_overall": 2.8,
+      "failure_reasons": [
+        "escalation_false_negative",
+        "intent_misclassification"
+      ],
+      "severity": "high",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "20",
+      "difficulty": "hard_short",
+      "customer_message": "@AppleSupport 11.1",
+      "gold_intent": "software_update_os",
+      "predicted_intent": "general_inquiry_features",
+      "gold_escalation": true,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@customer Thanks for reaching out! To better assist you with your inquiry, please send us a direct message so we can look into this further. https://t.co/GDrqU22YpT",
+      "judge_overall": 3.0,
       "failure_reasons": [
         "escalation_false_negative",
         "intent_misclassification"
@@ -46,30 +65,10 @@
       "gold_escalation": true,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer We\u2019re sorry for the frustration. Please DM us so we can securely verify your identity and help resolve this Apple ID issue. https://t.co/xyz",
+      "generated_reply": "@customer We\u2019re sorry for the wait! Since password resets can take up to 24 hours, please check your email again. If you still haven\u2019t received it, DM us so we can help verify your account securely.",
       "judge_overall": 4.0,
       "failure_reasons": [
-        "escalation_false_negative",
-        "reply_invalid_support_url"
-      ],
-      "severity": "high",
-      "hypothesis": "",
-      "mitigation": ""
-    },
-    {
-      "example_id": "20",
-      "difficulty": "hard_short",
-      "customer_message": "@AppleSupport 11.1",
-      "gold_intent": "software_update_os",
-      "predicted_intent": "general_inquiry_features",
-      "gold_escalation": true,
-      "predicted_escalation": false,
-      "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer Thanks for reaching out! To help you with your inquiry about iOS 11.1, please send us a DM so we can gather more details and assist you further. https://t.co/GDrqU22YpT",
-      "judge_overall": 3.0,
-      "failure_reasons": [
-        "escalation_false_negative",
-        "intent_misclassification"
+        "escalation_false_negative"
       ],
       "severity": "high",
       "hypothesis": "",
@@ -84,7 +83,7 @@
       "gold_escalation": true,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer We\u2019re here to help! Since we can\u2019t access your specific account details in public, please DM us with more info about the features you\u2019re looking for so we can guide you. \ud83c\udf4f",
+      "generated_reply": "@customer We\u2019re here to help! To better assist you with your feature questions, please DM us your device model and specific details. We\u2019ll get back to you shortly.",
       "judge_overall": 4.0,
       "failure_reasons": [
         "escalation_false_negative"
@@ -102,7 +101,7 @@
       "gold_escalation": true,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer We're here to help with your iOS 10.3.1 update. For account-specific details, please join us in DM: https://t.co/GDrqU22YpT",
+      "generated_reply": "@customer We\u2019re sorry for the trouble. To help you with your iOS 10.3.1 update, please join us in DM: https://t.co/GDrqU22YpT",
       "judge_overall": null,
       "failure_reasons": [
         "escalation_false_negative"
@@ -120,31 +119,12 @@
       "gold_escalation": false,
       "predicted_escalation": true,
       "escalation_reason_given": "High frustration indicated by profanity and all-caps, combined with a technical complaint requiring investigation.",
-      "generated_reply": "@customer We\u2019re sorry your keyboard is acting up. Try these quick fixes: https://t.co/xyz123 If it\u2019s still misbehaving, DM us for personalized support.",
+      "generated_reply": "@customer We\u2019re sorry to hear you\u2019re having keyboard trouble. Try these fixes: https://t.co/xyz123 If it\u2019s still acting up, DM us your model number so we can help further.",
       "judge_overall": 2.4,
       "failure_reasons": [
         "escalation_false_positive",
         "intent_misclassification",
         "low_judge_score"
-      ],
-      "severity": "medium",
-      "hypothesis": "",
-      "mitigation": ""
-    },
-    {
-      "example_id": "109",
-      "difficulty": "edge_case",
-      "customer_message": "First the stupid \u201cI\u201d problem now the \u201cI.t\u201d problem on iPhone. WTF is going on? @115858",
-      "gold_intent": "general_inquiry_features",
-      "predicted_intent": "complaint_and_frustration",
-      "gold_escalation": false,
-      "predicted_escalation": true,
-      "escalation_reason_given": "High frustration and explicit demand for human attention via @mention",
-      "generated_reply": "@115858 We\u2019re sorry for the frustration. Let\u2019s get this sorted. Please DM us your Apple ID email so we can review your account and help resolve these issues.",
-      "judge_overall": 4.0,
-      "failure_reasons": [
-        "escalation_false_positive",
-        "intent_misclassification"
       ],
       "severity": "medium",
       "hypothesis": "",
@@ -159,7 +139,7 @@
       "gold_escalation": false,
       "predicted_escalation": true,
       "escalation_reason_given": "Message contains strong profanity \u2014 customer is very frustrated",
-      "generated_reply": "@customer We\u2019re sorry for the frustration. Please DM us your device model and iOS version so we can help troubleshoot this specific issue with you directly.",
+      "generated_reply": "@customer We\u2019re sorry for the frustration. This is a known iOS display issue. Please update to the latest iOS version to resolve it. If it persists, DM us your device model for specific troubleshooting steps.",
       "judge_overall": 3.8,
       "failure_reasons": [
         "escalation_false_positive",
@@ -178,7 +158,7 @@
       "gold_escalation": false,
       "predicted_escalation": true,
       "escalation_reason_given": "Message contains strong profanity \u2014 customer is very frustrated",
-      "generated_reply": "@115858 We\u2019re so sorry for the frustration. That\u2019s not the experience we want you to have. Please DM us so we can look into this specific issue with you.",
+      "generated_reply": "@115858 We\u2019re so sorry for the frustration. Let\u2019s get this sorted out for you in DM.",
       "judge_overall": 2.8,
       "failure_reasons": [
         "escalation_false_positive",
@@ -197,7 +177,7 @@
       "gold_escalation": false,
       "predicted_escalation": true,
       "escalation_reason_given": "High frustration and complaint about rude staff behavior",
-      "generated_reply": "@customer We\u2019re truly sorry to hear about the frustration and rudeness you experienced. That is not the standard we strive for. Please DM us your details so we can investigate and make this right.",
+      "generated_reply": "@customer We\u2019re truly sorry to hear about the frustration and rudeness you experienced. That is not the standard we strive for. Please DM us with your details so we can look into this specific situation with you.",
       "judge_overall": 3.2,
       "failure_reasons": [
         "escalation_false_positive",
@@ -215,8 +195,8 @@
       "predicted_intent": "complaint_and_frustration",
       "gold_escalation": false,
       "predicted_escalation": true,
-      "escalation_reason_given": "High frustration and repeated billing issue (3rd time) requiring account/billing action.",
-      "generated_reply": "@customer We\u2019re so sorry for the frustration and repeated costs. That\u2019s not the experience we want for you. Please DM us your order details so we can review this specific issue and make it right.",
+      "escalation_reason_given": "High frustration and repeated billing issue (3rd time) requiring human intervention for refund or resolution.",
+      "generated_reply": "@customer We\u2019re sorry for the frustration. Replacing a $35 cable three times is not the experience we want you to have. Please DM us your order details so we can investigate this with you directly.",
       "judge_overall": null,
       "failure_reasons": [
         "escalation_false_positive",
@@ -235,7 +215,7 @@
       "gold_escalation": false,
       "predicted_escalation": true,
       "escalation_reason_given": "Message contains strong profanity \u2014 customer is very frustrated",
-      "generated_reply": "@115858 We hear you, and we\u2019re sorry for the frustration. For account-specific help, please DM us your details so we can look into this for you.",
+      "generated_reply": "@115858 We\u2019re sorry for the frustration. Please DM us your Apple ID email so we can look into this specific issue for you.",
       "judge_overall": null,
       "failure_reasons": [
         "escalation_false_positive",
@@ -254,7 +234,7 @@
       "gold_escalation": true,
       "predicted_escalation": true,
       "escalation_reason_given": "Message contains strong profanity \u2014 customer is very frustrated",
-      "generated_reply": "@customer Sorry to hear that your iPhone's home button is not working properly. Can you please DM us so we can look into this issue specifically for your device and provide a personalized solution? #AppleSupport",
+      "generated_reply": "@customer We\u2019re sorry for the frustration. Please DM us your contact info so we can assist with your account-specific issue.",
       "judge_overall": 4.2,
       "failure_reasons": [
         "intent_misclassification"
@@ -272,8 +252,26 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@115858 Merci ! Nos chargeurs officiels sont con\u00e7us pour une charge rapide et s\u00e9curis\u00e9e. Pour des conseils personnalis\u00e9s sur le mod\u00e8le id\u00e9al pour votre appareil, DM-nous !",
+      "generated_reply": "@115858 We\u2019re glad you\u2019re interested in our accessories! Our chargers are designed for reliable, fast charging. For specific model details or to check compatibility with your device, please DM us so we can help you find the right one.",
       "judge_overall": 2.6,
+      "failure_reasons": [
+        "intent_misclassification"
+      ],
+      "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "109",
+      "difficulty": "edge_case",
+      "customer_message": "First the stupid \u201cI\u201d problem now the \u201cI.t\u201d problem on iPhone. WTF is going on? @115858",
+      "gold_intent": "general_inquiry_features",
+      "predicted_intent": "complaint_and_frustration",
+      "gold_escalation": false,
+      "predicted_escalation": false,
+      "escalation_reason_given": "Standard query suitable for automated resolution",
+      "generated_reply": "@115858 We\u2019re sorry for the frustration with your iPhone. Please DM us your Apple ID and details so we can investigate the \"I.t\" issue and help get things sorted out for you.",
+      "judge_overall": 4.0,
       "failure_reasons": [
         "intent_misclassification"
       ],
@@ -290,7 +288,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer We\u2019re sorry the boxes are still there after your update. Since this involves your specific iCloud storage and account settings, please DM us so we can help you troubleshoot: https://t.co/GDrqU22YpT",
+      "generated_reply": "@customer We\u2019re sorry the boxes are still there after your update. Since this involves your specific iCloud account and storage, please DM us so we can help troubleshoot: https://t.co/GDrqU22YpT",
       "judge_overall": 3.2,
       "failure_reasons": [
         "intent_misclassification"
@@ -308,7 +306,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@115948 We\u2019re sorry the verification email hasn\u2019t arrived. Please check your Spam folder first. For account-specific troubleshooting, please DM us your Apple ID email so we can assist you further.",
+      "generated_reply": "@115948 We\u2019re sorry you\u2019re having trouble verifying your student status. For account-specific help, please DM us your Apple ID email so we can assist you with the verification process.",
       "judge_overall": 3.4,
       "failure_reasons": [
         "intent_misclassification"
@@ -326,7 +324,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@115858 We\u2019re here to help! For account-specific details or to explore features on your device, please DM us. We\u2019d be happy to guide you through the steps.",
+      "generated_reply": "@115858 We\u2019re here to help! Please DM us the specific features you\u2019d like to learn about so we can point you in the right direction.",
       "judge_overall": 3.8,
       "failure_reasons": [
         "intent_misclassification"
@@ -344,7 +342,7 @@
       "gold_escalation": false,
       "predicted_escalation": true,
       "escalation_reason_given": "High frustration and direct hostility toward support",
-      "generated_reply": "@115858 We\u2019re sorry to hear you\u2019re having a frustrating experience. We\u2019d like to help resolve this for you. Please send us a DM so we can look into your specific account details.",
+      "generated_reply": "@115858 We\u2019re sorry to hear you\u2019re having a rough experience. We want to make this right. Please DM us so our team can look into your specific issue and help resolve it.",
       "judge_overall": 3.6,
       "failure_reasons": [
         "escalation_false_positive"
@@ -362,7 +360,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@115858 We hear you, and we\u2019re sorry for the frustration. Please send us a DM with details so our team can investigate this specific issue with you.",
+      "generated_reply": "@115858 We hear you, and we're sorry this is causing such frustration. Please send us a DM with your details so we can investigate this specific issue with you.",
       "judge_overall": 3.4,
       "failure_reasons": [
         "intent_misclassification"
@@ -380,7 +378,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer I\u2019m sorry to hear you\u2019re facing connection errors. Please don\u2019t wipe your device yet. Let\u2019s troubleshoot this together in DMs to find a solution. Click the link below to get started.",
+      "generated_reply": "@customer I'm sorry to hear you're hitting that error. Please don't wipe your data yet! Let's troubleshoot this together first. Click below to open a DM so we can review specific steps to fix the connection. https://support.apple.com",
       "judge_overall": 4.2,
       "failure_reasons": [
         "intent_misclassification"
@@ -397,8 +395,8 @@
       "predicted_intent": "complaint_and_frustration",
       "gold_escalation": true,
       "predicted_escalation": true,
-      "escalation_reason_given": "High frustration indicated by explicit distress and intent label",
-      "generated_reply": "@customer We\u2019re so sorry to hear about the frustration. Please DM us your Apple ID email so we can look into this for you. https://t.co/abc123",
+      "escalation_reason_given": "High frustration and complaint intent",
+      "generated_reply": "@customer We\u2019re so sorry to hear you\u2019re having a rough time. Please send us a DM with your Apple ID email so we can look into this for you.",
       "judge_overall": 3.8,
       "failure_reasons": [
         "intent_misclassification"
@@ -416,7 +414,7 @@
       "gold_escalation": true,
       "predicted_escalation": true,
       "escalation_reason_given": "Message contains strong profanity \u2014 customer is very frustrated",
-      "generated_reply": "@customer We hear your frustration and are sorry for the trouble. Please DM us your device model and iOS version so we can help you fix the keyboard issue.",
+      "generated_reply": "@customer We\u2019re sorry you\u2019re having trouble with your keyboard. Please DM us your device model and iOS version so we can help troubleshoot this specific issue.",
       "judge_overall": 4.0,
       "failure_reasons": [
         "intent_misclassification"
@@ -434,7 +432,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer Thanks for sharing! To help you better, could you let us know which specific feature or issue you\u2019re asking about? Please DM us with more details so we can assist you directly.",
+      "generated_reply": "@customer Thanks for sharing! To help you explore these features, could you share a bit more about what you're trying to do? Please DM us the details so we can guide you! \ud83c\udf4f",
       "judge_overall": null,
       "failure_reasons": [
         "intent_misclassification"
@@ -452,7 +450,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer We're sorry Siri isn't responding as expected. Please DM us your device model and iOS version so we can guide you through the latest software update to resolve this.",
+      "generated_reply": "@customer We hear you and understand the frustration. Since the mic seems fine, let's check your software version. Please DM us your device model and current iOS/macOS version so we can guide you on the latest update.",
       "judge_overall": null,
       "failure_reasons": [
         "intent_misclassification"
@@ -470,7 +468,7 @@
       "gold_escalation": true,
       "predicted_escalation": true,
       "escalation_reason_given": "Message contains billing_dispute indicator: 'refund'",
-      "generated_reply": "@115858 We\u2019re sorry to hear about the freezing and lag. We\u2019d like to help get this resolved. Please DM us your device model and iOS version so we can assist you further.",
+      "generated_reply": "@115858 We\u2019re sorry your iPhone is causing frustration. Please DM us your model and iOS version so we can help troubleshoot the freezing and lag issues.",
       "judge_overall": null,
       "failure_reasons": [
         "intent_misclassification"
@@ -488,7 +486,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer We're sorry to hear your iPhone is vibrating unexpectedly after the update. Please DM us your device model and iOS version so we can guide you on adjusting Haptics settings or troubleshooting further.",
+      "generated_reply": "@customer Sorry to hear your iPhone is vibrating unexpectedly after the update. Try restarting it first. For specific troubleshooting steps, please DM us your iOS version and device model so we can assist you further.",
       "judge_overall": null,
       "failure_reasons": [
         "intent_misclassification"
@@ -506,7 +504,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer We\u2019re sorry for the frustration. Please DM us your device model and a brief description of the issue so we can assist you directly.",
+      "generated_reply": "@customer We hear you. Frustration with unexpected behavior is never fun. Please DM us your device model and details so we can investigate this specific issue for you.",
       "judge_overall": null,
       "failure_reasons": [
         "intent_misclassification"
@@ -524,12 +522,30 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer Great question! The 2017 iMac supports both 1080p and 4K via HDMI. For specific setup help or account issues, please DM us with your details so we can assist you further.",
+      "generated_reply": "@customer Hi! The 2017 iMac supports both 4K and 1080p displays via HDMI. For specific setup details or troubleshooting, please DM us your account info so we can assist you further.",
       "judge_overall": null,
       "failure_reasons": [
         "intent_misclassification"
       ],
       "severity": "medium",
+      "hypothesis": "",
+      "mitigation": ""
+    },
+    {
+      "example_id": "115",
+      "difficulty": "standard",
+      "customer_message": "@AppleSupport to necessitada de uma ajudavam meu iPhone que o carinha bloqueou",
+      "gold_intent": "apple_id_and_icloud",
+      "predicted_intent": "apple_id_and_icloud",
+      "gold_escalation": true,
+      "predicted_escalation": true,
+      "escalation_reason_given": "Account lockout requires human verification and security review",
+      "generated_reply": "@customer We're sorry your iPhone is locked. For account-specific help, please DM us. You can also visit https://support.apple.com or contact us at https://t.co/IBIY3vMgPj.",
+      "judge_overall": 4.0,
+      "failure_reasons": [
+        "reply_invalid_support_url"
+      ],
+      "severity": "low",
       "hypothesis": "",
       "mitigation": ""
     },
@@ -542,7 +558,7 @@
       "gold_escalation": false,
       "predicted_escalation": false,
       "escalation_reason_given": "Standard query suitable for automated resolution",
-      "generated_reply": "@customer We\u2019re sorry the update caused these issues. Let\u2019s get this sorted out for you. Please send us a DM so we can look into your specific account and help resolve this.",
+      "generated_reply": "@115858 We\u2019re sorry the update is causing issues. We\u2019d love to help get your phone running smoothly again. Please send us a DM with your details so we can assist you directly.",
       "judge_overall": 1.6,
       "failure_reasons": [
         "low_judge_score"

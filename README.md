@@ -146,7 +146,7 @@ I have not tuned the benchmark size to make a number look good.
 | Golden set | `data/golden_set_final.csv` sha256:`4f1c1a8fd18e474a` |
 | Taxonomy | 10 intents, sha256:`6bb7079b4e073743` |
 | Label provenance | human-reviewed |
-| Total wall time | 287.5s (4.8 min) |
+| Total wall time | 310.5s (5.2 min) |
 
 #### Intent classification
 
@@ -155,29 +155,29 @@ I have not tuned the benchmark size to make a number look good.
 | Accuracy | 32.5% | 37.5% | 40.0% |
 | Accuracy 95% CI | 17.5%–47.5% | 22.5%–52.5% | 25.0%–55.0% |
 | Macro-F1 | 0.049 | 0.102 | 0.345 |
-| Weighted-F1 | 0.159 | 0.232 | 0.415 |
+| Weighted-F1 | 0.159 | 0.232 | 0.410 |
 | Off-taxonomy predictions | 0 | 0 | 0 |
 
 #### Escalation
 
 | Metric | Trivial | Simple | Main |
 |---|:---:|:---:|:---:|
-| Accuracy | 70.0% | 72.5% | 67.5% |
-| Accuracy 95% CI | 55.0%–82.5% | 57.5%–85.0% | 52.5%–82.5% |
-| Precision | 0.0% | 57.1% | 46.7% |
+| Accuracy | 70.0% | 72.5% | 70.0% |
+| Accuracy 95% CI | 55.0%–82.5% | 57.5%–85.0% | 55.0%–82.5% |
+| Precision | 0.0% | 57.1% | 50.0% |
 | Recall | 0.0% | 33.3% | 58.3% |
-| F1 | 0.000 | 0.421 | 0.518 |
-| TP / FP / FN / TN | 0 / 0 / 12 / 28 | 4 / 3 / 8 / 25 | 7 / 8 / 5 / 20 |
+| F1 | 0.000 | 0.421 | 0.538 |
+| TP / FP / FN / TN | 0 / 0 / 12 / 28 | 4 / 3 / 8 / 25 | 7 / 7 / 5 / 21 |
 | False negatives (missed handoffs) | 12 | 8 | 5 |
 
 #### Reply quality
 
 | Metric | Trivial | Simple | Main |
 |---|:---:|:---:|:---:|
-| ROUGE-1 | 0.2391 | 0.3165 | 0.2198 |
-| ROUGE-2 | 0.0564 | 0.1513 | 0.0488 |
-| ROUGE-L | 0.1721 | 0.2603 | 0.1577 |
-| Mean reply length (chars) | 116.0 | 140.3 | 172.5 |
+| ROUGE-1 | 0.2391 | 0.3165 | 0.2343 |
+| ROUGE-2 | 0.0564 | 0.1513 | 0.0501 |
+| ROUGE-L | 0.1721 | 0.2603 | 0.1721 |
+| Mean reply length (chars) | 116.0 | 140.3 | 175.6 |
 
 #### Output validation (observed violations)
 
@@ -186,7 +186,7 @@ I have not tuned the benchmark size to make a number look good.
 | Replies with >=1 violation | 0 | 0 | 1 |
 | Empty replies | 0 | 0 | 0 |
 | Over 280 chars | 0 | 0 | 0 |
-| Longest reply (chars) | 116 | 249 | 243 |
+| Longest reply (chars) | 116 | 249 | 241 |
 
 Violation counts by type:
 
@@ -198,7 +198,7 @@ Violation counts by type:
 
 | Metric | Trivial | Simple | Main |
 |---|:---:|:---:|:---:|
-| Mean seconds / message | 0.00 | 0.00 | 9.79 |
+| Mean seconds / message | 0.00 | 0.00 | 7.72 |
 
 All 10 leakage assertions passed for this run (the harness aborts instead of reporting a leaked number): `corpus_excludes_golden`, `no_gold_labels_in_inference [main]`, `no_gold_labels_in_inference [simple]`, `no_gold_labels_in_inference [trivial]`, `retrieval_excludes_self [main]`, `retrieval_excludes_self [simple]`, `retrieval_excludes_self [trivial]`, `same_examples`, `simple_out_of_fold`, `trivial_out_of_fold`.
 

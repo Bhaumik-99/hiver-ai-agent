@@ -1,8 +1,8 @@
 {
   "intent_classification": {
     "accuracy": 0.4,
-    "macro_f1": 0.3454,
-    "weighted_f1": 0.4147,
+    "macro_f1": 0.3451,
+    "weighted_f1": 0.4102,
     "per_class": {
       "apple_id_and_icloud": {
         "precision": 0.6,
@@ -23,9 +23,9 @@
         "support": 2.0
       },
       "complaint_and_frustration": {
-        "precision": 0.125,
+        "precision": 0.1333,
         "recall": 1.0,
-        "f1-score": 0.2222,
+        "f1-score": 0.2353,
         "support": 2.0
       },
       "connectivity_and_network": {
@@ -41,9 +41,9 @@
         "support": 4.0
       },
       "general_inquiry_features": {
-        "precision": 0.4444,
+        "precision": 0.4,
         "recall": 0.3077,
-        "f1-score": 0.3636,
+        "f1-score": 0.3478,
         "support": 13.0
       },
       "hardware_and_audio": {
@@ -179,10 +179,10 @@
           0,
           0,
           0,
-          2,
-          0,
-          0,
           1,
+          0,
+          0,
+          2,
           0,
           2,
           0
@@ -211,43 +211,43 @@
     }
   },
   "escalation": {
-    "accuracy": 0.675,
-    "precision": 0.4667,
+    "accuracy": 0.7,
+    "precision": 0.5,
     "recall": 0.5833,
-    "f1": 0.5185,
+    "f1": 0.5385,
     "confusion": {
       "tp": 7,
-      "fp": 8,
+      "fp": 7,
       "fn": 5,
-      "tn": 20
+      "tn": 21
     },
-    "total_escalated": 15,
+    "total_escalated": 14,
     "total_should_escalate": 12,
     "accuracy_ci95": {
-      "point": 0.675,
-      "lo": 0.525,
+      "point": 0.7,
+      "lo": 0.55,
       "hi": 0.825,
       "n": 40
     }
   },
   "rouge_scores": {
-    "rouge1": 0.2198,
-    "rouge2": 0.0488,
-    "rougeL": 0.1577
+    "rouge1": 0.2343,
+    "rouge2": 0.0501,
+    "rougeL": 0.1721
   },
   "reply_stats": {
-    "avg_length_chars": 172.5,
-    "avg_length_words": 29.5,
-    "min_length": 120,
-    "max_length": 243,
+    "avg_length_chars": 175.6,
+    "avg_length_words": 29.7,
+    "min_length": 84,
+    "max_length": 241,
     "empty_replies": 0
   },
   "performance": {
-    "avg_time_seconds": 9.79,
-    "total_time_seconds": 391.55,
+    "avg_time_seconds": 7.72,
+    "total_time_seconds": 308.85,
     "samples_evaluated": 40
   },
-  "wall_time_seconds": 284.83,
+  "wall_time_seconds": 308.93,
   "reply_validation": {
     "n_replies": 40,
     "n_replies_with_violation": 1,
@@ -258,14 +258,14 @@
     "examples_by_type": {
       "invalid_support_url": [
         {
-          "index": 9,
-          "customer_message": "@AppleSupport hi, I'd forgotten my password, did the recover, got message saying reset next day at 7pm. Day passed no re",
-          "reply": "@customer We\u2019re sorry for the frustration. Please DM us so we can securely verify your identity and help resolve this Apple ID issue. https://t.co/xyz",
-          "detail": "malformed t.co short link 'https://t.co/xyz'"
+          "index": 5,
+          "customer_message": "@AppleSupport to necessitada de uma ajudavam meu iPhone que o carinha bloqueou",
+          "reply": "@customer We're sorry your iPhone is locked. For account-specific help, please DM us. You can also visit https://support.apple.com or contact us at https://t.co",
+          "detail": "malformed t.co short link 'https://t.co/IBIY3vMgPj.'"
         }
       ]
     },
-    "max_reply_length": 243,
+    "max_reply_length": 241,
     "n_over_char_limit": 0
   }
 }
