@@ -22,31 +22,44 @@ Around them sits the part the assignment actually weighs: an evaluation harness 
 
 ## 2. Architecture
 
-```
-                       incoming customer message
-                                   │
-         ┌─────────────────────────┼─────────────────────────┐
-         ▼                         ▼                         ▼
-  intent_classifier          retriever              escalation
-  LLM few-shot over          TF-IDF word            hard rules ─┐
-  10-intent taxonomy         1-2grams               (deterministic)
-  fallback → catch-all       cosine top-5           LLM soft signals
-  + flagged, never           corpus EXCLUDES       ─────────────┘
-  silently absorbed          all golden rows               │
-         │                         │                       ▼
-         └─────────────────────────┴──────────►  auto-handle | escalate
-                                   │               + stated reason
-                                   ▼
-                          reply_generator
-                       injects top-2 precedents
-                                   │
-                                   ▼
-                          reply_validation
-                   280 chars · PII · context leak
-                   · brand-URL allowlist · non-empty
+```mermaid
+flowchart TD
+    A[Incoming customer message]
+
+    A --> I[Intent classifier<br/>LLM few-shot<br/>10-intent taxonomy]
+    A --> R[Retriever<br/>TF-IDF word 1-2grams<br/>Cosine similarity<br/>Top-5 candidates]
+    A --> E[Escalation router]
+
+    E --> HR[Deterministic safety rules]
+    E --> LS[LLM soft signals]
+    HR --> ED{Routing decision}
+    LS --> ED
+
+    R --> G[Reply generator<br/>Uses top-2 precedents]
+    I --> G
+    G --> V[Reply validation<br/>≤280 chars · PII · context leak<br/>URL allowlist · non-empty]
+
+    V --> O[Final support response]
+    ED --> O
+
+    subgraph Evaluation[Evaluation harness]
+        GS[Human-reviewed golden set<br/>200 examples]
+        LC[Leakage gates<br/>7 invariant types / 10 assertions]
+        M[Metrics + bootstrap CIs]
+        J[LLM judge<br/>5 dimensions]
+        FA[Failure analysis]
+    end
+
+    GS -. held-out from .-> R
+    I --> LC
+    R --> LC
+    G --> LC
+    LC --> M
+    M --> J
+    J --> FA
 ```
 
-Evaluation path: `run_evaluation.py` → leakage gates → metrics + CIs → LLM judge → failure analysis → `results/*.json` → `render_results.py` → this README.
+**Evaluation path:** `run_evaluation.py` → leakage gates → metrics + CIs → LLM judge → failure analysis → `results/*.json` → `render_results.py` → this README.
 
 | Module | Responsibility |
 |---|---|
@@ -67,47 +80,52 @@ Evaluation path: `run_evaluation.py` → leakage gates → metrics + CIs → LLM
 ```bash
 git clone https://github.com/Bhaumik-99/hiver-ai-agent.git
 cd hiver-ai-agent
-python -m venv venv && venv/Scripts/activate      # Linux/macOS: source venv/bin/activate
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-cp .env.example .env        # then paste a free Groq key from console.groq.com/keys
+cp .env.example .env             # add your GROQ_API_KEY
 ```
 
-No API key? Everything runs locally instead — `ollama pull llama3.2`, then add `--local` to any command below. Local inference on CPU is roughly 10× slower.
+No API key? Run locally with Ollama instead:
+
+```bash
+ollama pull llama3.2
+python scripts/demo.py --local "@AppleSupport my battery dies in 2 hours since iOS 11"
+```
+
+Local inference on CPU is roughly 10× slower.
 
 ### Option B — Docker
 
-Docker packages the Python dependencies and project data so you do not need to create a virtual environment or install the requirements on the host.
-
-Build the image:
+Docker avoids installing the Python environment manually.
 
 ```bash
-docker build -t hiver-ai-agent .
+git clone https://github.com/Bhaumik-99/hiver-ai-agent.git
+cd hiver-ai-agent
+
+docker build -t applesupport-agent .
 ```
 
-Create `.env` from the example and add your Groq key:
+Run the single-message demo with your Groq key:
 
 ```bash
-cp .env.example .env
-```
-
-Run the single-message demo:
-
-```bash
-docker run --rm --env-file .env hiver-ai-agent \
+docker run --rm \
+  -e GROQ_API_KEY="your_key_here" \
+  applesupport-agent \
   python scripts/demo.py "@AppleSupport my battery dies in 2 hours since iOS 11"
 ```
 
-Run the headline evaluation from a clean container:
+Run the headline evaluation:
 
 ```bash
-docker run --rm --env-file .env hiver-ai-agent \
+docker run --rm \
+  -e GROQ_API_KEY="your_key_here" \
+  applesupport-agent \
   python scripts/run_evaluation.py --benchmark headline --fresh
 ```
 
-The Docker image uses the same committed processed data and golden set as the normal setup. It uses Groq for LLM inference by default. The Docker image does **not** install Ollama; for local Ollama inference, use the native Python setup or provide an externally reachable Ollama service and configure networking accordingly.
-
-> **Note:** Docker isolates the application environment, but it does not remove external API rate limits. The headline benchmark can still take longer than the 5.2-minute reference run depending on the Groq account, model availability, and network conditions.
+The image includes the committed processed dataset, golden set, scripts, source code, and result artifacts. The Docker image does **not** install Ollama; `--local` therefore requires an Ollama service outside the container and is intended primarily for the native Python setup.
 
 `data/processed/AppleSupport_threads.json` (5,000 threads), `data/golden_set_prelabelled.csv` (200 heuristic pre-labels), and the finalized `data/golden_set_final.csv` (200 human-reviewed examples) are committed. The headline benchmark uses the finalized human-reviewed set and reproduces without downloading the 516 MB Kaggle file. To rebuild the processed data and annotation workflow from source, download `twcs.csv` into the repo root and run:
 
@@ -118,7 +136,9 @@ python scripts/build_golden_set.py     #           -> data/golden_set_raw.csv
 python scripts/label_golden_set.py     #           -> heuristic pre-labels (NOT ground truth)
 ```
 
-### Reproduce the headline result
+---
+
+## 4. Reproduce the headline result
 
 The exact headline command is:
 
@@ -127,6 +147,14 @@ python scripts/run_evaluation.py --benchmark headline --fresh
 ```
 
 Use `--fresh` for a genuine rerun. Without it, the harness may resume from a checkpoint in `results/` after an interrupted run. The committed result artifacts are evidence of the reference run; they are not required as benchmark ground truth.
+
+The same command can be run inside Docker:
+
+```bash
+docker run --rm -e GROQ_API_KEY="your_key_here" \
+  applesupport-agent \
+  python scripts/run_evaluation.py --benchmark headline --fresh
+```
 
 The reference headline run used 40 examples and completed in **310.5 seconds (5.2 minutes)**. The benchmark harness measures its own wall time and reports whether the 900-second budget was met. Actual runtime depends on the provider, model availability, network, and account rate limits; the README does not guarantee a fresh run will take exactly 5.2 minutes on every account.
 
@@ -140,7 +168,7 @@ python scripts/demo.py "@AppleSupport my battery dies in 2 hours since iOS 11"
 
 ---
 
-## 4. Headline benchmark
+## 5. Headline benchmark
 
 ```bash
 python scripts/run_evaluation.py --benchmark headline --fresh
@@ -154,7 +182,7 @@ The extended run is `--benchmark full` (all 200 examples).
 
 ---
 
-## 5. Results
+## 6. Results
 
 <!-- BEGIN GENERATED RESULTS: headline -->
 **Benchmark `headline`** — 40-example stratified subset of the 200-example golden set.
@@ -252,7 +280,7 @@ Every figure above is generated from `results/comparison_headline.json` by `scri
 
 ---
 
-## 6. Evaluation methodology
+## 7. Evaluation methodology
 
 **Two baselines, both real.**
 
@@ -278,7 +306,7 @@ python scripts/compute_judge_calibration.py       # -> results/judge_calibration
 
 ---
 
-## 7. Golden set
+## 8. Golden set
 
 200 examples, stratified across four difficulty bands (standard, hard/short, hard/complex, edge cases) at build time.
 
@@ -307,7 +335,7 @@ The final benchmark uses only the adjudicated human-reviewed set; heuristic pre-
 
 ---
 
-## 8. Leakage controls
+## 9. Leakage controls
 
 Seven **invariant types**, asserted at runtime. In the headline run these expand to **10 runtime assertions** because several invariants are checked separately for each system. A violation aborts the run with exit code 4 rather than printing a leaked number.
 
@@ -325,7 +353,7 @@ These checks are implemented in `src/leakage_checks.py` and are gates, not warni
 
 ---
 
-## 9. Failure analysis
+## 10. Failure analysis
 
 The headline run records genuine main-agent failures rather than hiding them. Failures are ranked with safety first: missed escalations are high severity, while ordinary intent mistakes are medium severity. The generated artifact is `results/failure_analysis_headline.json`.
 
@@ -335,13 +363,13 @@ See `REPORT.md` for the top failure modes, real examples, hypotheses, and mitiga
 
 ---
 
-## 10. Decision log
+## 11. Decision log
 
 `DECISION_LOG.md` contains the non-obvious design decisions, including the intent taxonomy, TF-IDF retrieval choice, held-out golden examples, leakage gates, escalation design, judge blindness/calibration, benchmark size, and result-generation workflow.
 
 ---
 
-## 11. Tests
+## 12. Tests
 
 Run the deterministic test suite with:
 
@@ -353,7 +381,7 @@ The suite covers golden-set provenance, anti-laundering, deterministic sampling,
 
 ---
 
-## 12. Submission audit
+## 13. Submission audit
 
 `SUBMISSION_AUDIT.md` records the verification evidence and known limitations for the submitted repository. The audit should be read together with the benchmark results rather than as a claim that the model is production-ready.
 
