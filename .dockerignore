@@ -1,0 +1,38 @@
+# Git metadata
+.git
+.gitignore
+.github
+
+# Python caches / environments
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Large source dataset / local artifacts
+twcs.csv
+data/raw/
+data/quarantine/
+
+# Temporary outputs
+*.log
+*.tmp
+*.swp
