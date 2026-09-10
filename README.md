@@ -62,8 +62,11 @@ Evaluation path: `run_evaluation.py` → leakage gates → metrics + CIs → LLM
 
 ## 3. Quickstart
 
+### Option A — Python environment
+
 ```bash
-git clone <repo-url> && cd hiver-ai-agent
+git clone https://github.com/Bhaumik-99/hiver-ai-agent.git
+cd hiver-ai-agent
 python -m venv venv && venv/Scripts/activate      # Linux/macOS: source venv/bin/activate
 pip install -r requirements.txt
 
@@ -71,6 +74,40 @@ cp .env.example .env        # then paste a free Groq key from console.groq.com/k
 ```
 
 No API key? Everything runs locally instead — `ollama pull llama3.2`, then add `--local` to any command below. Local inference on CPU is roughly 10× slower.
+
+### Option B — Docker
+
+Docker packages the Python dependencies and project data so you do not need to create a virtual environment or install the requirements on the host.
+
+Build the image:
+
+```bash
+docker build -t hiver-ai-agent .
+```
+
+Create `.env` from the example and add your Groq key:
+
+```bash
+cp .env.example .env
+```
+
+Run the single-message demo:
+
+```bash
+docker run --rm --env-file .env hiver-ai-agent \
+  python scripts/demo.py "@AppleSupport my battery dies in 2 hours since iOS 11"
+```
+
+Run the headline evaluation from a clean container:
+
+```bash
+docker run --rm --env-file .env hiver-ai-agent \
+  python scripts/run_evaluation.py --benchmark headline --fresh
+```
+
+The Docker image uses the same committed processed data and golden set as the normal setup. It uses Groq for LLM inference by default. The Docker image does **not** install Ollama; for local Ollama inference, use the native Python setup or provide an externally reachable Ollama service and configure networking accordingly.
+
+> **Note:** Docker isolates the application environment, but it does not remove external API rate limits. The headline benchmark can still take longer than the 5.2-minute reference run depending on the Groq account, model availability, and network conditions.
 
 `data/processed/AppleSupport_threads.json` (5,000 threads), `data/golden_set_prelabelled.csv` (200 heuristic pre-labels), and the finalized `data/golden_set_final.csv` (200 human-reviewed examples) are committed. The headline benchmark uses the finalized human-reviewed set and reproduces without downloading the 516 MB Kaggle file. To rebuild the processed data and annotation workflow from source, download `twcs.csv` into the repo root and run:
 
