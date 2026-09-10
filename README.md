@@ -1,9 +1,6 @@
 # AppleSupport AI Agent — classify, draft, escalate
 
-An AI support agent for `@AppleSupport` built from the
-[Customer Support on Twitter](https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter)
-dataset, together with the evaluation harness that tries to work out whether it
-can be trusted.
+An AI support agent for `@AppleSupport` built from the [Customer Support on Twitter](https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter) dataset, together with the evaluation harness that tries to work out whether it can be trusted.
 
 > **Read this first.** The golden set is **100% human-reviewed and adjudicated (`data/golden_set_final.csv`)**, verified by independent dual annotation across 50 overlap rows ($\kappa = 0.9725$ on intent, $\kappa = 1.000$ on escalation). The LLM judge has been calibrated against human ratings (`results/judge_calibration.json`). All benchmark metrics reported are verified from genuine human ground truth. `SUBMISSION_AUDIT.md` details the complete methodology and validation evidence.
 
@@ -13,22 +10,13 @@ can be trusted.
 
 Three components behind one `handle_message()` call:
 
-1. **Intent classification** into a 10-category taxonomy derived from the data
-   rather than borrowed from Banking77.
-2. **Grounded reply drafting** — a reply tweet conditioned on the three most
-   similar historical `(customer message → Apple reply)` pairs, retrieved from a
-   corpus with the evaluation examples removed.
-3. **Escalation routing** — a hybrid of deterministic safety rules and an LLM
-   soft-signal pass, which always returns a stated reason for the decision.
+1. **Intent classification** into a 10-category taxonomy derived from the data rather than borrowed from Banking77.
+2. **Grounded reply drafting** — a reply tweet conditioned on the two most similar historical `(customer message → Apple reply)` pairs, retrieved from a corpus with the evaluation examples removed. The retriever considers up to five nearest examples; the generator injects the top two.
+3. **Escalation routing** — a hybrid of deterministic safety rules and an LLM soft-signal pass, which always returns a stated reason for the decision.
 
-Around them sits the part the assignment actually weighs: an evaluation harness
-with two baselines, runtime leakage assertions, output validation, bootstrap
-confidence intervals, an LLM-as-judge on a five-dimension rubric, and explicit
-human-annotation provenance and calibration artifacts.
+Around them sits the part the assignment actually weighs: an evaluation harness with two baselines, runtime leakage assertions, output validation, bootstrap confidence intervals, an LLM-as-judge on a five-dimension rubric, and explicit human-annotation provenance and calibration artifacts.
 
-**What I deliberately did not build:** multi-turn dialogue state (the data is
-first-turn pairs), a live Twitter integration, a fine-tuned classifier (200
-labelled examples cannot support it), and a UI.
+**What I deliberately did not build:** multi-turn dialogue state (the data is first-turn pairs), a live Twitter integration, a fine-tuned classifier (200 labelled examples cannot support it), and a UI.
 
 ---
 
@@ -40,14 +28,17 @@ labelled examples cannot support it), and a UI.
          ┌─────────────────────────┼─────────────────────────┐
          ▼                         ▼                         ▼
   intent_classifier          retriever              escalation
-  LLM few-shot over          TF-IDF 1-2gram         hard rules ─┐
-  10-intent taxonomy         cosine top-k           (deterministic)
-  fallback → catch-all       corpus EXCLUDES       LLM soft signals
-  + flagged, never           all golden rows        ─────────────┘
-  silently absorbed                │                       │
-         │                         ▼                       ▼
-         └──────────────►  reply_generator  ────►  auto-handle | escalate
-                          grounded in top-3        + stated reason
+  LLM few-shot over          TF-IDF word            hard rules ─┐
+  10-intent taxonomy         1-2grams               (deterministic)
+  fallback → catch-all       cosine top-5           LLM soft signals
+  + flagged, never           corpus EXCLUDES       ─────────────┘
+  silently absorbed          all golden rows               │
+         │                         │                       ▼
+         └─────────────────────────┴──────────►  auto-handle | escalate
+                                   │               + stated reason
+                                   ▼
+                          reply_generator
+                       injects top-2 precedents
                                    │
                                    ▼
                           reply_validation
@@ -55,8 +46,7 @@ labelled examples cannot support it), and a UI.
                    · brand-URL allowlist · non-empty
 ```
 
-Evaluation path: `run_evaluation.py` → leakage gates → metrics + CIs → LLM judge
-→ failure analysis → `results/*.json` → `render_results.py` → this README.
+Evaluation path: `run_evaluation.py` → leakage gates → metrics + CIs → LLM judge → failure analysis → `results/*.json` → `render_results.py` → this README.
 
 | Module | Responsibility |
 |---|---|
@@ -73,22 +63,16 @@ Evaluation path: `run_evaluation.py` → leakage gates → metrics + CIs → LLM
 ## 3. Quickstart
 
 ```bash
-git clone <repo-url> && cd hiver
+git clone <repo-url> && cd hiver-ai-agent
 python -m venv venv && venv/Scripts/activate      # Linux/macOS: source venv/bin/activate
 pip install -r requirements.txt
 
 cp .env.example .env        # then paste a free Groq key from console.groq.com/keys
 ```
 
-No API key? Everything runs locally instead — `ollama pull llama3.2`, then add
-`--local` to any command below. Local inference on CPU is roughly 10× slower.
+No API key? Everything runs locally instead — `ollama pull llama3.2`, then add `--local` to any command below. Local inference on CPU is roughly 10× slower.
 
-`data/processed/AppleSupport_threads.json` (5,000 threads),
-`data/golden_set_prelabelled.csv` (200 heuristic pre-labels), and the finalized
-`data/golden_set_final.csv` (200 human-reviewed examples) are committed. The
-headline benchmark uses the finalized human-reviewed set and reproduces without
-downloading the 516 MB Kaggle file. To rebuild the processed data and annotation
-workflow from source, download `twcs.csv` into the repo root and run:
+`data/processed/AppleSupport_threads.json` (5,000 threads), `data/golden_set_prelabelled.csv` (200 heuristic pre-labels), and the finalized `data/golden_set_final.csv` (200 human-reviewed examples) are committed. The headline benchmark uses the finalized human-reviewed set and reproduces without downloading the 516 MB Kaggle file. To rebuild the processed data and annotation workflow from source, download `twcs.csv` into the repo root and run:
 
 ```bash
 python scripts/process_brand.py        # twcs.csv  -> data/processed/
@@ -96,6 +80,20 @@ python scripts/discover_taxonomy.py    #           -> data/intent_taxonomy.json
 python scripts/build_golden_set.py     #           -> data/golden_set_raw.csv
 python scripts/label_golden_set.py     #           -> heuristic pre-labels (NOT ground truth)
 ```
+
+### Reproduce the headline result
+
+The exact headline command is:
+
+```bash
+python scripts/run_evaluation.py --benchmark headline --fresh
+```
+
+Use `--fresh` for a genuine rerun. Without it, the harness may resume from a checkpoint in `results/` after an interrupted run. The committed result artifacts are evidence of the reference run; they are not required as benchmark ground truth.
+
+The reference headline run used 40 examples and completed in **310.5 seconds (5.2 minutes)**. The benchmark harness measures its own wall time and reports whether the 900-second budget was met. Actual runtime depends on the provider, model availability, network, and account rate limits; the README does not guarantee a fresh run will take exactly 5.2 minutes on every account.
+
+Most reference-run waiting time was free-tier provider rate-limit pacing, not local computation. If a run exceeds 15 minutes on a rate-limited key, `--no-judge` is the fastest diagnostic/reproduction path, but the published headline result includes the judge. The harness records the provider, models, timing, seed, hashes, and leakage assertions in `results/run_config_headline.json`.
 
 Try one message end to end:
 
@@ -108,24 +106,14 @@ python scripts/demo.py "@AppleSupport my battery dies in 2 hours since iOS 11"
 ## 4. Headline benchmark
 
 ```bash
-python scripts/run_evaluation.py --benchmark headline
+python scripts/run_evaluation.py --benchmark headline --fresh
 ```
 
-40 examples, stratified on escalation flag and intent, seed 42, identical for all
-three systems. The command evaluates against `data/golden_set_final.csv`, which
-contains the finalized human-reviewed labels. No pre-labelled or heuristic labels
-are used as benchmark ground truth.
+40 examples, stratified on escalation flag and intent, seed 42, identical for all three systems. The command evaluates against `data/golden_set_final.csv`, which contains the finalized human-reviewed labels. No pre-labelled or heuristic labels are used as benchmark ground truth.
 
 The extended run is `--benchmark full` (all 200 examples).
 
-**On the 15-minute budget.** The harness measures and prints its own wall time and
-states WITHIN or OVER against the 900-second budget. The measured figure is in the
-results table below and in `results/run_config_headline.json`. Most of that time is
-*waiting on free-tier rate limits*, not computation — the token pacer sleeps
-precisely against the provider's remaining-token headers. If a run exceeds the
-budget on your key, the fastest honest options are `--no-judge` (the judge is
-roughly two-thirds of the API calls) or a provider tier without a per-minute cap.
-I have not tuned the benchmark size to make a number look good.
+**On the 15-minute budget.** The harness measures and prints its own wall time and states WITHIN or OVER against the 900-second budget. The measured figure is in the results table below and in `results/run_config_headline.json`. Most of the reference-run time was *waiting on free-tier rate limits*, not computation — the token pacer sleeps against the provider's remaining-token headers. If a run exceeds the budget on your key, the fastest honest diagnostic is `--no-judge` (the judge is a large fraction of the API calls) or a provider tier without a per-minute cap. I have not tuned the benchmark size to make a number look good.
 
 ---
 
@@ -223,9 +211,7 @@ All 10 leakage assertions passed for this run (the harness aborts instead of rep
 *Generated by `scripts/render_results.py --benchmark headline` from `results/comparison_headline.json`. Do not edit by hand.*
 <!-- END GENERATED RESULTS: headline -->
 
-Every figure above is generated from `results/comparison_headline.json` by
-`scripts/render_results.py`. `python scripts/render_results.py --check` fails if
-this README has drifted from the artifacts.
+Every figure above is generated from `results/comparison_headline.json` by `scripts/render_results.py`. `python scripts/render_results.py --check` fails if this README has drifted from the artifacts.
 
 ---
 
@@ -237,24 +223,13 @@ this README has drifted from the artifacts.
 |---|---|---|---|
 | **Trivial** | majority class from the training folds | one fixed template | never escalates |
 | **Simple** | TF-IDF + logistic regression, cross-fitted | nearest historical reply, verbatim | deterministic rules only |
-| **Main** | LLM few-shot over the taxonomy | LLM grounded in top-3 retrieved precedents | rules + LLM soft signals |
+| **Main** | LLM few-shot over the taxonomy | LLM grounded in top-2 retrieved precedents | rules + LLM soft signals |
 
-The trivial baseline exists to show what accuracy is available for free from the
-class prior. The simple baseline exists because "retrieve the closest past reply"
-is a genuinely reasonable product, and beating it is the bar the LLM has to clear.
+The trivial baseline exists to show what accuracy is available for free from the class prior. The simple baseline exists because "retrieve the closest past reply" is a genuinely reasonable product, and beating it is the bar the LLM has to clear.
 
-**Metrics.** Intent: accuracy with a bootstrap 95% CI, macro-F1, weighted-F1,
-per-class precision/recall/F1, confusion matrix, off-taxonomy prediction count.
-Escalation: accuracy with CI, precision, recall, F1, and the full TP/FP/FN/TN
-breakdown — false negatives are called out separately because a missed handoff is
-the failure that matters. Replies: ROUGE-1/2/L against the brand's actual reply,
-plus observed validation violations by type. Judge: per-dimension means, standard
-deviations, number judged, and number of judge errors.
+**Metrics.** Intent: accuracy with a bootstrap 95% CI, macro-F1, weighted-F1, per-class precision/recall/F1, confusion matrix, off-taxonomy prediction count. Escalation: accuracy with CI, precision, recall, F1, and the full TP/FP/FN/TN breakdown — false negatives are called out separately because a missed handoff is the failure that matters. Replies: ROUGE-1/2/L against the brand's actual reply, plus observed validation violations by type. Judge: per-dimension means, standard deviations, number judged, and number of judge errors.
 
-**LLM-as-judge.** Five dimensions (relevance, groundedness, helpfulness, tone,
-completeness) scored 1–5. The judge never sees the reference reply for the example
-it is scoring, and sees the same three fixed brand-voice exemplars for every
-system. It runs on a different model from the agent.
+**LLM-as-judge.** Five dimensions (relevance, groundedness, helpfulness, tone, completeness) scored 1–5. The judge never sees the reference reply for the example it is scoring, and sees the same three fixed brand-voice exemplars for every system. It runs on a different model from the agent.
 
 **Judge–human agreement.** Evaluated on 40 human-scored replies across all 5 rubric dimensions (`data/judge_calibration/judge_calibration_human.csv`). Results are recorded in `results/judge_calibration.json` (Spearman, exact/adjacent agreement, MAE, and quadratic-weighted kappa). The calibration is currently reported as a limitation because the set uses one human rater and the observed agreement is weak on several dimensions.
 
@@ -268,8 +243,7 @@ python scripts/compute_judge_calibration.py       # -> results/judge_calibration
 
 ## 7. Golden set
 
-200 examples, stratified across four difficulty bands (standard, hard/short,
-hard/complex, edge cases) at build time.
+200 examples, stratified across four difficulty bands (standard, hard/short, hard/complex, edge cases) at build time.
 
 Labels move through three stages, and the stage is recorded in the row:
 
@@ -279,18 +253,9 @@ Labels move through three stages, and the stage is recorded in the row:
 | `data/golden_set_prelabelled.csv` | `pre_labelled_heuristic` | **no** |
 | `data/golden_set_final.csv` | `human_reviewed` | yes |
 
-`scripts/label_golden_set.py` writes **pre-labels** by regex. They exist to make a
-human faster, not to stand in for one. `src/golden_set.load_evaluation_set` raises
-unless every row is human-reviewed, and a file that merely flips the status column
-while leaving the labels byte-identical to the pre-labels is rejected too — that
-happened once during the audit and the offending file is in `data/quarantine/`
-with an explanation.
+`scripts/label_golden_set.py` writes **pre-labels** by regex. They exist to make a human faster, not to stand in for one. `src/golden_set.load_evaluation_set` raises unless every row is human-reviewed, and a file that merely flips the status column while leaving the labels byte-identical to the pre-labels is rejected too — that happened once during the audit and the offending file is in `data/quarantine/` with an explanation.
 
-**Annotation is complete.** Two independent annotator files were reviewed across
-all 200 rows, with a 50-row overlap used for agreement measurement. The finalized
-`data/golden_set_final.csv` is the benchmark ground truth, with
-`labels_are_provisional: false`. The measured overlap agreement is
-Cohen's $\kappa = 0.9725$ for intent and $1.000$ for escalation.
+**Annotation is complete.** Two independent annotator files were reviewed across all 200 rows, with a 50-row overlap used for agreement measurement. The finalized `data/golden_set_final.csv` is the benchmark ground truth, with `labels_are_provisional: false`. The measured overlap agreement is Cohen's $\kappa = 0.9725$ for intent and $1.000$ for escalation.
 
 For reproducibility, the annotation workflow remains available:
 
@@ -301,55 +266,62 @@ python scripts/compute_annotation_agreement.py    # real Cohen's kappa on the ov
 python scripts/finalize_golden_set.py             # -> data/golden_set_final.csv
 ```
 
-The final benchmark uses only the adjudicated human-reviewed set; heuristic
-pre-labels are never treated as ground truth.
+The final benchmark uses only the adjudicated human-reviewed set; heuristic pre-labels are never treated as ground truth.
 
 ---
 
 ## 8. Leakage controls
 
-Seven invariants, asserted at runtime. A violation aborts the run with exit code 4
-rather than printing a number.
+Seven **invariant types**, asserted at runtime. In the headline run these expand to **10 runtime assertions** because several invariants are checked separately for each system. A violation aborts the run with exit code 4 rather than printing a leaked number.
 
-| Invariant | Why it exists |
+| Invariant | What is checked |
 |---|---|
-| Golden examples excluded from the retrieval corpus | The golden set was sampled from the retrieval threads, so the nearest neighbour was the example itself. This inflated the simple baseline to ROUGE-1 0.797 and groundedness 5.00/5.00 at zero variance. |
-| No system retrieves the example it is scored on | Runtime check that catches near-duplicates the corpus filter misses |
-| Baselines scored on out-of-fold predictions only | The TF-IDF classifier was fitted on the whole dataset originally, which leaked labels into its features. |
-| Same examples for every system | Baseline comparisons must be paired, not on different random samples. |
-| No gold labels reachable from inference imports | Prevents the answer itself from being encoded in the model path. |
-| No gold-label strings in inference source | Static guard against accidental hard-coding. |
-| Pre-labelled files forbidden in normal benchmark mode | Keeps heuristic labels from becoming silent ground truth. |
+| Golden holdout | All golden examples are removed from the retrieval corpus. |
+| Retrieval self-exclusion | No system retrieves the example it is being scored on. |
+| Out-of-fold baselines | Baseline classifiers are scored only with predictions from folds that did not train on the row. |
+| Same benchmark | All systems see exactly the same examples in the same order. |
+| Reference non-echo | No generated reply is byte-identical to its reference reply. |
+| Judge blindness | The judge never sees the reference reply and receives the same fixed style exemplars for every system. |
+| Gold-label isolation | Gold labels are never used during inference. |
+
+These checks are implemented in `src/leakage_checks.py` and are gates, not warnings.
 
 ---
 
-## 9. Runtime & Reproducibility
+## 9. Failure analysis
 
-The full 5,000-thread processing step is vectorized and completes in seconds on a
-normal laptop. The headline benchmark's 5.2-minute wall time is dominated by free-tier
-LLM calls and provider rate limiting, not CPU work. Checkpointing is enabled so an
-interrupted API run can resume without discarding completed examples.
+The headline run records genuine main-agent failures rather than hiding them. Failures are ranked with safety first: missed escalations are high severity, while ordinary intent mistakes are medium severity. The generated artifact is `results/failure_analysis_headline.json`.
 
-`results/run_config_headline.json` records the benchmark configuration and measured
-runtime, while `results/comparison_headline.json` stores the generated metric table.
+The headline run's observed limitations include weak intent classification, missed escalations, and one reply-validation violation (`invalid_support_url`). These are evaluation findings, not suppressed errors.
+
+See `REPORT.md` for the top failure modes, real examples, hypotheses, and mitigations.
 
 ---
 
-## 10. Limitations & Honest Conclusions
+## 10. Decision log
 
-The system demonstrates a complete and auditable evaluation setup, but the measured
-model performance is not production-grade. The headline intent accuracy is 40.0%
-and macro-F1 is 0.345, while the hybrid escalation F1 is 53.8%. Reply quality is
-also difficult to summarize with lexical overlap alone: Main ROUGE-2 is only 0.0501,
-and the benchmark observed one invalid-support-URL violation.
+`DECISION_LOG.md` contains the non-obvious design decisions, including the intent taxonomy, TF-IDF retrieval choice, held-out golden examples, leakage gates, escalation design, judge blindness/calibration, benchmark size, and result-generation workflow.
 
-Judge calibration is a significant limitation. On the 40 human-rated replies, the
-judge's agreement is weak on several dimensions (for example groundedness Spearman
-$\rho=-0.202$), so judge scores should be treated as diagnostic rather than as a
-replacement for human evaluation. The calibration also uses one human rater, which
-limits how strongly inter-rater reliability can be inferred.
+---
 
-The main evidence of robustness is therefore methodological: human-reviewed ground
-truth, independent overlap annotation, runtime leakage assertions, explicit output
-validation, and reproducible artifacts. The project should be viewed as a well-
-audited prototype rather than a production-ready support agent.
+## 11. Tests
+
+Run the deterministic test suite with:
+
+```bash
+python -m pytest -q
+```
+
+The suite covers golden-set provenance, anti-laundering, deterministic sampling, escalation rules, leakage controls, rate limiting, reply validation, and metric calculations.
+
+---
+
+## 12. Submission audit
+
+`SUBMISSION_AUDIT.md` records the verification evidence and known limitations for the submitted repository. The audit should be read together with the benchmark results rather than as a claim that the model is production-ready.
+
+---
+
+## License / data note
+
+The project code is provided for the take-home assignment. The Twitter support dataset is governed by its own Kaggle/source terms; the committed processed subset is included solely to make the assignment benchmark reproducible without requiring the full dataset download.
